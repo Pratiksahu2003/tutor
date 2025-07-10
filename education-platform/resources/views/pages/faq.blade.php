@@ -87,7 +87,7 @@
         </div>
 
         <!-- General FAQ Section -->
-        @if($generalFaqs->count() > 0)
+        @if(isset($generalFaqs) && $generalFaqs->count() > 0)
         <div class="row mb-5">
             <div class="col-12">
                 <h2 class="h3 fw-bold mb-4">
@@ -98,20 +98,20 @@
                     @foreach($generalFaqs as $index => $faq)
                     <div class="accordion-item border-0 mb-3 shadow-sm faq-item" 
                          data-subject="{{ $faq->subject->name ?? 'General' }}" 
-                         data-difficulty="{{ $faq->difficulty }}"
-                         data-keywords="{{ strtolower($faq->title . ' ' . $faq->question_text . ' ' . $faq->explanation) }}">
+                         data-difficulty="{{ $faq->difficulty_level ?? 'medium' }}"
+                         data-keywords="{{ strtolower(($faq->title ?? '') . ' ' . $faq->question_text . ' ' . ($faq->explanation ?? '')) }}">
                         <h2 class="accordion-header">
                             <button class="accordion-button {{ $index === 0 ? '' : 'collapsed' }}" 
                                     type="button" data-bs-toggle="collapse" 
                                     data-bs-target="#generalFaq{{ $faq->id }}">
                                 <div class="d-flex align-items-center w-100">
                                     <div class="flex-grow-1">
-                                        <strong>{{ $faq->title }}</strong>
+                                        <strong>{{ $faq->title ?? $faq->question_text }}</strong>
                                         @if($faq->subject)
                                             <span class="badge bg-primary ms-2">{{ $faq->subject->name }}</span>
                                         @endif
-                                        <span class="badge bg-{{ $faq->difficulty === 'easy' ? 'success' : ($faq->difficulty === 'medium' ? 'warning' : 'danger') }} ms-1">
-                                            {{ ucfirst($faq->difficulty) }}
+                                        <span class="badge bg-{{ ($faq->difficulty_level ?? 'medium') === 'easy' ? 'success' : (($faq->difficulty_level ?? 'medium') === 'medium' ? 'warning' : 'danger') }} ms-1">
+                                            {{ ucfirst($faq->difficulty_level ?? 'medium') }}
                                         </span>
                                     </div>
                                 </div>
@@ -161,12 +161,16 @@
                                                     <strong>Board:</strong> {{ $faq->board }}
                                                 </div>
                                                 @endif
-                                                @if($faq->tags && count($faq->tags) > 0)
+                                                @if($faq->tags)
                                                 <div class="mb-2">
                                                     <strong>Tags:</strong><br>
-                                                    @foreach($faq->tags as $tag)
-                                                        <span class="badge bg-secondary me-1 mb-1">{{ $tag }}</span>
-                                                    @endforeach
+                                                    @if(is_array($faq->tags))
+                                                        @foreach($faq->tags as $tag)
+                                                            <span class="badge bg-secondary me-1 mb-1">{{ $tag }}</span>
+                                                        @endforeach
+                                                    @else
+                                                        <span class="badge bg-secondary">{{ $faq->tags }}</span>
+                                                    @endif
                                                 </div>
                                                 @endif
                                             </div>
@@ -183,7 +187,7 @@
         @endif
 
         <!-- Subject-wise FAQ Questions -->
-        @if($faqQuestions->count() > 0)
+        @if(isset($faqQuestions) && $faqQuestions->count() > 0)
         <div class="row">
             <div class="col-12">
                 <h2 class="h3 fw-bold mb-4">
@@ -202,20 +206,20 @@
                         @foreach($questions as $qIndex => $question)
                         <div class="accordion-item border-0 mb-3 shadow-sm faq-item" 
                              data-subject="{{ $subjectName }}" 
-                             data-difficulty="{{ $question->difficulty }}"
-                             data-keywords="{{ strtolower($question->title . ' ' . $question->question_text . ' ' . $question->explanation . ' ' . $question->topic) }}">
+                             data-difficulty="{{ $question->difficulty_level ?? 'medium' }}"
+                             data-keywords="{{ strtolower(($question->title ?? '') . ' ' . $question->question_text . ' ' . ($question->explanation ?? '') . ' ' . ($question->topic ?? '')) }}">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" 
                                         data-bs-toggle="collapse" 
                                         data-bs-target="#question{{ $question->id }}">
                                     <div class="d-flex align-items-center w-100">
                                         <div class="flex-grow-1">
-                                            <strong>{{ $question->title }}</strong>
+                                            <strong>{{ $question->title ?? $question->question_text }}</strong>
                                             @if($question->topic)
                                                 <span class="badge bg-info ms-2">{{ $question->topic }}</span>
                                             @endif
-                                            <span class="badge bg-{{ $question->difficulty === 'easy' ? 'success' : ($question->difficulty === 'medium' ? 'warning' : 'danger') }} ms-1">
-                                                {{ ucfirst($question->difficulty) }}
+                                            <span class="badge bg-{{ ($question->difficulty_level ?? 'medium') === 'easy' ? 'success' : (($question->difficulty_level ?? 'medium') === 'medium' ? 'warning' : 'danger') }} ms-1">
+                                                {{ ucfirst($question->difficulty_level ?? 'medium') }}
                                             </span>
                                             @if($question->marks)
                                                 <span class="badge bg-secondary ms-1">{{ $question->marks }} marks</span>
@@ -302,8 +306,8 @@
                                                     @endif
                                                     <div class="mb-2">
                                                         <strong>Difficulty:</strong> 
-                                                        <span class="badge bg-{{ $question->difficulty === 'easy' ? 'success' : ($question->difficulty === 'medium' ? 'warning' : 'danger') }}">
-                                                            {{ ucfirst($question->difficulty) }}
+                                                        <span class="badge bg-{{ ($question->difficulty_level ?? 'medium') === 'easy' ? 'success' : (($question->difficulty_level ?? 'medium') === 'medium' ? 'warning' : 'danger') }}">
+                                                            {{ ucfirst($question->difficulty_level ?? 'medium') }}
                                                         </span>
                                                     </div>
                                                     @if($question->usage_count > 0)
@@ -316,12 +320,16 @@
                                                         <strong>Success Rate:</strong> {{ number_format($question->success_rate, 1) }}%
                                                     </div>
                                                     @endif
-                                                    @if($question->tags && count($question->tags) > 0)
+                                                    @if($question->tags)
                                                     <div class="mb-2">
                                                         <strong>Tags:</strong><br>
-                                                        @foreach($question->tags as $tag)
-                                                            <span class="badge bg-secondary me-1 mb-1">{{ $tag }}</span>
-                                                        @endforeach
+                                                        @if(is_array($question->tags))
+                                                            @foreach($question->tags as $tag)
+                                                                <span class="badge bg-secondary me-1 mb-1">{{ $tag }}</span>
+                                                            @endforeach
+                                                        @else
+                                                            <span class="badge bg-secondary">{{ $question->tags }}</span>
+                                                        @endif
                                                     </div>
                                                     @endif
                                                 </div>

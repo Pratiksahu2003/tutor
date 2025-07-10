@@ -81,11 +81,32 @@ class PageController extends Controller
                 return $question->subject ? $question->subject->name : 'General';
             });
 
+            // Separate general FAQs (platform-related questions)
+            $generalFaqs = $questions->filter(function($question) {
+                return $question->category === 'faq' || 
+                       (is_array($question->tags) && in_array('faq', $question->tags)) ||
+                       (is_string($question->tags) && strpos($question->tags, 'faq') !== false);
+            });
+
+            // Subject-specific questions (quiz/educational content)
+            $faqQuestions = $questions->filter(function($question) {
+                return $question->category === 'quiz' || $question->subject_id !== null;
+            })->groupBy(function($question) {
+                return $question->subject ? $question->subject->name : 'General';
+            });
+
             return [
                 'questions' => $questions,
                 'questionsBySubject' => $questionsBySubject,
+                'generalFaqs' => $generalFaqs,
+                'faqQuestions' => $faqQuestions,
                 'totalQuestions' => $questions->count(),
                 'subjects' => Subject::where('status', 'active')->orderBy('name')->get(),
+                'stats' => [
+                    'total_questions' => $questions->count(),
+                    'total_subjects' => Subject::where('status', 'active')->count(),
+                    'faq_questions' => $generalFaqs->count(),
+                ]
             ];
         });
 
