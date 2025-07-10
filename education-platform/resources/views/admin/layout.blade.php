@@ -306,6 +306,25 @@
                 </div>
             </div>
 
+            <!-- Question Management Section -->
+            <div class="menu-section">
+                <div class="menu-section-title">Question Management</div>
+                
+                <div class="menu-item">
+                    <a href="{{ route('admin.questions.index') }}" class="{{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Questions</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a href="{{ route('admin.questions.statistics') }}" class="{{ request()->routeIs('admin.questions.statistics') ? 'active' : '' }}">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Statistics</span>
+                    </a>
+                </div>
+            </div>
+
             <!-- Access Control -->
             <div class="menu-section">
                 <div class="menu-section-title">Access Control</div>

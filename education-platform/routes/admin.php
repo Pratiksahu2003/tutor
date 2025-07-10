@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\TeacherManagementController;
 use App\Http\Controllers\Admin\InstituteManagementController;
 use App\Http\Controllers\Admin\CMSController;
+use App\Http\Controllers\Admin\QuestionManagementController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -106,6 +107,33 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/bulk/toggle-status', [InstituteManagementController::class, 'bulkToggleStatus'])->name('bulk-toggle-status');
         Route::patch('/{institute}/rating', [InstituteManagementController::class, 'updateRating'])->name('update-rating');
         Route::patch('/{institute}/student-count', [InstituteManagementController::class, 'updateStudentCount'])->name('update-student-count');
+    });
+
+    // ===== QUESTION MANAGEMENT =====
+    Route::prefix('questions')->name('questions.')->group(function () {
+        Route::get('/', [QuestionManagementController::class, 'index'])->name('index');
+        Route::get('/create', [QuestionManagementController::class, 'create'])->name('create');
+        Route::post('/', [QuestionManagementController::class, 'store'])->name('store');
+        Route::get('/{question}', [QuestionManagementController::class, 'show'])->name('show');
+        Route::get('/{question}/edit', [QuestionManagementController::class, 'edit'])->name('edit');
+        Route::put('/{question}', [QuestionManagementController::class, 'update'])->name('update');
+        Route::delete('/{question}', [QuestionManagementController::class, 'destroy'])->name('destroy');
+        
+        // Question Actions
+        Route::patch('/{question}/publish', [QuestionManagementController::class, 'publish'])->name('publish');
+        Route::patch('/{question}/archive', [QuestionManagementController::class, 'archive'])->name('archive');
+        Route::patch('/{question}/mark-review', [QuestionManagementController::class, 'markForReview'])->name('mark-review');
+        Route::patch('/{question}/complete-review', [QuestionManagementController::class, 'completeReview'])->name('complete-review');
+        
+        // Bulk Operations
+        Route::post('/bulk-action', [QuestionManagementController::class, 'bulkAction'])->name('bulk-action');
+        
+        // Import/Export
+        Route::get('/import/form', [QuestionManagementController::class, 'import'])->name('import');
+        Route::get('/export', [QuestionManagementController::class, 'export'])->name('export');
+        
+        // Statistics
+        Route::get('/statistics/overview', [QuestionManagementController::class, 'statistics'])->name('statistics');
     });
 
     // ===== CMS MANAGEMENT =====

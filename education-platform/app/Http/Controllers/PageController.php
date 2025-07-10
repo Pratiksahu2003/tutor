@@ -98,20 +98,112 @@ class PageController extends Controller
      */
     public function faq()
     {
-        $page = Cache::remember('page.faq', 3600, function () {
-            return Page::where('slug', 'faq')->where('status', 'published')->first();
+        // Get FAQ questions from the database - questions marked as 'quiz' category will serve as FAQs
+        $faqQuestions = Cache::remember('faq.questions', 3600, function () {
+            return \App\Models\Question::published()
+                ->public()
+                ->where('category', 'quiz')
+                ->with(['subject', 'creator'])
+                ->orderBy('subject_id')
+                ->orderBy('difficulty')
+                ->get()
+                ->groupBy('subject.name');
         });
 
-        if (!$page) {
-            $page = (object) [
-                'title' => 'Frequently Asked Questions',
-                'content' => $this->getDefaultFaqContent(),
-                'meta_title' => 'FAQ - Education Platform',
-                'meta_description' => 'Find answers to commonly asked questions about our education platform.',
-            ];
-        }
+        // Get general FAQ questions (if any exist with 'faq' in tags or specific category)
+        $generalFaqs = Cache::remember('faq.general', 3600, function () {
+            return \App\Models\Question::published()
+                ->public()
+                ->where(function($query) {
+                    $query->whereJsonContains('tags', 'faq')
+                          ->orWhere('category', 'faq')
+                          ->orWhere('topic', 'like', '%faq%');
+                })
+                ->with(['subject', 'creator'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        });
 
-        return view('pages.faq', compact('page'));
+        // Get statistics for FAQ page
+        $stats = [
+            'total_questions' => \App\Models\Question::published()->public()->count(),
+            'total_subjects' => \App\Models\Subject::active()->count(),
+            'faq_questions' => $faqQuestions->flatten()->count(),
+            'general_faqs' => $generalFaqs->count(),
+        ];
+
+        // Get all subjects for filtering
+        $subjects = \App\Models\Subject::active()->get();
+
+        return view('pages.faq', compact('faqQuestions', 'generalFaqs', 'stats', 'subjects'));
+    }
+
+    /**
+     * AJAX search for FAQ questions
+     */
+    public function faqSearch(Request $request)
+    {
+        $query = \App\Models\Question::published()->public();
+        
+        // Filter by search term
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('question_text', 'like', "%{$search}%")
+                  ->orWhere('explanation', 'like', "%{$search}%")
+                  ->orWhere('topic', 'like', "%{$search}%")
+                  ->orWhereJsonContains('tags', $search);
+            });
+        }
+        
+        // Filter by subject
+        if ($request->filled('subject')) {
+            $query->whereHas('subject', function($q) use ($request) {
+                $q->where('name', $request->subject);
+            });
+        }
+        
+        // Filter by difficulty
+        if ($request->filled('difficulty')) {
+            $query->where('difficulty', $request->difficulty);
+        }
+        
+        // Filter FAQ-related questions
+        $query->where(function($q) {
+            $q->where('category', 'quiz')
+              ->orWhereJsonContains('tags', 'faq')
+              ->orWhere('topic', 'like', '%faq%');
+        });
+        
+        $questions = $query->with(['subject', 'creator'])
+                          ->orderBy('subject_id')
+                          ->orderBy('difficulty')
+                          ->get();
+        
+        return response()->json([
+            'success' => true,
+            'questions' => $questions->map(function($question) {
+                return [
+                    'id' => $question->id,
+                    'title' => $question->title,
+                    'question_text' => $question->question_text,
+                    'explanation' => $question->explanation,
+                    'hint' => $question->hint,
+                    'subject' => $question->subject->name ?? 'General',
+                    'topic' => $question->topic,
+                    'difficulty' => $question->difficulty,
+                    'difficulty_color' => $question->difficulty === 'easy' ? 'success' : ($question->difficulty === 'medium' ? 'warning' : 'danger'),
+                    'options' => $question->options,
+                    'correct_answers' => $question->correct_answers,
+                    'tags' => $question->tags,
+                    'class_level' => $question->class_level,
+                    'board' => $question->board,
+                    'marks' => $question->marks,
+                ];
+            }),
+            'count' => $questions->count(),
+        ]);
     }
 
     /**

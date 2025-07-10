@@ -57,6 +57,7 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/faq', [PageController::class, 'faq'])->name('faq');
+Route::get('/faq/search', [PageController::class, 'faqSearch'])->name('faq.search'); // AJAX route for FAQ search
 Route::get('/how-it-works', [PageController::class, 'howItWorks'])->name('how-it-works');
 Route::get('/careers', [PageController::class, 'careers'])->name('careers');
 Route::get('/page/{slug}', [PageController::class, 'dynamic'])->name('page.dynamic');
