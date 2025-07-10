@@ -172,6 +172,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         });
     });
 
+    // ===== SETTINGS MANAGEMENT =====
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+        Route::put('/', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('update');
+        Route::post('/clear-cache', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('clear-cache');
+        Route::get('/system-info', [App\Http\Controllers\Admin\SettingsController::class, 'systemInfo'])->name('system-info');
+        Route::post('/optimize', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeApplication'])->name('optimize');
+        Route::get('/backup', [App\Http\Controllers\Admin\SettingsController::class, 'databaseBackup'])->name('backup');
+        Route::post('/reset', [App\Http\Controllers\Admin\SettingsController::class, 'resetSettings'])->name('reset');
+    });
+
     // ===== SYSTEM & MAINTENANCE =====
     Route::get('/system-info', [AdminDashboardController::class, 'systemInfo'])->name('system-info');
     

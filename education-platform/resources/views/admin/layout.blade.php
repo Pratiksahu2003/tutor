@@ -344,6 +344,18 @@
                 </div>
             </div>
 
+            <!-- Settings -->
+            <div class="menu-section">
+                <div class="menu-section-title">Settings</div>
+                
+                <div class="menu-item">
+                    <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span>Site Settings</span>
+                    </a>
+                </div>
+            </div>
+
             <!-- Account -->
             <div class="menu-section">
                 <div class="menu-section-title">Account</div>

@@ -1,185 +1,135 @@
 @extends('layouts.app')
 
-@section('title', $page->meta_title ?? 'About Us - Education Platform')
-@section('meta_description', $page->meta_description ?? 'Learn about our mission to connect students with qualified teachers and institutes.')
+@section('title', 'About Us')
 
 @section('content')
-<!-- Page Header -->
-<section class="bg-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8" data-aos="fade-right">
-                <h1 class="display-4 fw-bold">{{ $page->title }}</h1>
-                <p class="lead">Transforming education through meaningful connections</p>
-            </div>
-            <div class="col-lg-4 text-end" data-aos="fade-left">
-                <i class="bi bi-people display-1 opacity-50"></i>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- About Content -->
-<section class="py-5">
-    <div class="container">
-        {!! $page->content !!}
-    </div>
-</section>
-
-<!-- Our Values -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h2 class="fw-bold">Our Core Values</h2>
-            <p class="lead text-muted">The principles that guide everything we do</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="text-center">
-                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="bi bi-heart text-primary fs-1"></i>
-                    </div>
-                    <h4>Quality First</h4>
-                    <p class="text-muted">We prioritize the quality of education and ensure all our teachers meet the highest standards.</p>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h1 class="mb-0">
+                        <i class="fas fa-info-circle me-3"></i>About Us
+                    </h1>
                 </div>
-            </div>
-            
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="text-center">
-                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="bi bi-people text-success fs-1"></i>
+                
+                <div class="card-body p-5">
+                    <div class="content-area">
+                        @if(Str::contains($content, '#') || Str::contains($content, '**'))
+                            {!! \Illuminate\Support\Str::markdown($content) !!}
+                        @else
+                            <div class="formatted-content">
+                                {!! nl2br(e($content)) !!}
+                            </div>
+                        @endif
                     </div>
-                    <h4>Accessibility</h4>
-                    <p class="text-muted">Making quality education accessible to everyone, regardless of location or background.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="text-center">
-                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="bi bi-lightbulb text-info fs-1"></i>
-                    </div>
-                    <h4>Innovation</h4>
-                    <p class="text-muted">Continuously improving our platform with the latest technology and educational methods.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Team Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5" data-aos="fade-up">
-            <h2 class="fw-bold">Meet Our Team</h2>
-            <p class="lead text-muted">The passionate people behind our platform</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="card border-0 text-center">
-                    <div class="card-body">
-                        <img src="{{ asset('images/team/ceo.jpg') }}" alt="CEO" class="rounded-circle mb-3" width="100" height="100">
-                        <h5>John Smith</h5>
-                        <p class="text-muted">CEO & Founder</p>
-                        <div class="social-links">
-                            <a href="#" class="text-primary me-2"><i class="bi bi-linkedin"></i></a>
-                            <a href="#" class="text-info"><i class="bi bi-twitter"></i></a>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <h4 class="text-primary mb-3">Get in Touch</h4>
+                        <div class="row">
+                            @if(App\Models\SiteSetting::get('admin_email'))
+                                <div class="col-md-4 mb-3">
+                                    <div class="contact-item">
+                                        <i class="fas fa-envelope text-primary fa-2x mb-2"></i>
+                                        <p class="mb-0">
+                                            <strong>Email</strong><br>
+                                            <a href="mailto:{{ App\Models\SiteSetting::get('admin_email') }}" class="text-decoration-none">
+                                                {{ App\Models\SiteSetting::get('admin_email') }}
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            @if(App\Models\SiteSetting::get('contact_phone'))
+                                <div class="col-md-4 mb-3">
+                                    <div class="contact-item">
+                                        <i class="fas fa-phone text-primary fa-2x mb-2"></i>
+                                        <p class="mb-0">
+                                            <strong>Phone</strong><br>
+                                            <a href="tel:{{ App\Models\SiteSetting::get('contact_phone') }}" class="text-decoration-none">
+                                                {{ App\Models\SiteSetting::get('contact_phone') }}
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            @if(App\Models\SiteSetting::get('contact_address'))
+                                <div class="col-md-4 mb-3">
+                                    <div class="contact-item">
+                                        <i class="fas fa-map-marker-alt text-primary fa-2x mb-2"></i>
+                                        <p class="mb-0">
+                                            <strong>Address</strong><br>
+                                            {{ App\Models\SiteSetting::get('contact_address') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="card border-0 text-center">
-                    <div class="card-body">
-                        <img src="{{ asset('images/team/cto.jpg') }}" alt="CTO" class="rounded-circle mb-3" width="100" height="100">
-                        <h5>Sarah Johnson</h5>
-                        <p class="text-muted">CTO</p>
-                        <div class="social-links">
-                            <a href="#" class="text-primary me-2"><i class="bi bi-linkedin"></i></a>
-                            <a href="#" class="text-info"><i class="bi bi-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="card border-0 text-center">
-                    <div class="card-body">
-                        <img src="{{ asset('images/team/head-education.jpg') }}" alt="Head of Education" class="rounded-circle mb-3" width="100" height="100">
-                        <h5>Dr. Mike Wilson</h5>
-                        <p class="text-muted">Head of Education</p>
-                        <div class="social-links">
-                            <a href="#" class="text-primary me-2"><i class="bi bi-linkedin"></i></a>
-                            <a href="#" class="text-info"><i class="bi bi-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                <div class="card border-0 text-center">
-                    <div class="card-body">
-                        <img src="{{ asset('images/team/head-marketing.jpg') }}" alt="Head of Marketing" class="rounded-circle mb-3" width="100" height="100">
-                        <h5>Emily Davis</h5>
-                        <p class="text-muted">Head of Marketing</p>
-                        <div class="social-links">
-                            <a href="#" class="text-primary me-2"><i class="bi bi-linkedin"></i></a>
-                            <a href="#" class="text-info"><i class="bi bi-twitter"></i></a>
+                        
+                        <div class="mt-4">
+                            <a href="{{ route('contact') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Contact Us
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- Stats Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container">
-        <div class="row text-center g-4">
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="h2 fw-bold">10,000+</div>
-                <p>Happy Students</p>
-            </div>
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="h2 fw-bold">2,500+</div>
-                <p>Qualified Teachers</p>
-            </div>
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="h2 fw-bold">500+</div>
-                <p>Partner Institutes</p>
-            </div>
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                <div class="h2 fw-bold">50+</div>
-                <p>Cities Covered</p>
-            </div>
-        </div>
-    </div>
-</section>
+<style>
+.content-area h1, .content-area h2, .content-area h3 {
+    color: #2563eb;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
 
-<!-- CTA Section -->
-<section class="py-5">
-    <div class="container text-center">
-        <div class="row justify-content-center">
-            <div class="col-lg-8" data-aos="fade-up">
-                <h2 class="fw-bold mb-4">Join Our Growing Community</h2>
-                <p class="lead mb-4">
-                    Whether you're a student looking for a teacher or an educator wanting to share your knowledge, 
-                    we have a place for you.
-                </p>
-                <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4">
-                        <i class="bi bi-person-plus me-2"></i>Join as Student
-                    </a>
-                    <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg px-4">
-                        <i class="bi bi-person-workspace me-2"></i>Join as Teacher
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+.content-area h1:first-child, .content-area h2:first-child, .content-area h3:first-child {
+    margin-top: 0;
+}
+
+.content-area p {
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+}
+
+.content-area ul, .content-area ol {
+    margin-bottom: 1.2rem;
+    padding-left: 2rem;
+}
+
+.content-area li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.content-area blockquote {
+    border-left: 4px solid #2563eb;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.375rem;
+}
+
+.contact-item {
+    text-align: center;
+    padding: 1rem;
+}
+
+.contact-item i {
+    display: block;
+    margin: 0 auto 0.5rem;
+}
+
+.formatted-content {
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+</style>
 @endsection 
