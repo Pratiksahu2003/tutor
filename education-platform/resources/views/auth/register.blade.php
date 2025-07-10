@@ -13,7 +13,7 @@
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" action="{{ route('register') }}" id="registrationForm">
-                        @csrf
+        @csrf
 
                         <!-- Role Selection -->
                         <div class="mb-4">
@@ -101,7 +101,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+        </div>
 
                         <!-- Location Information -->
                         <div class="row g-3 mb-3">
@@ -121,7 +121,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+        </div>
 
                         <!-- Role-specific fields -->
                         <div id="roleSpecificFields">
@@ -204,7 +204,7 @@
                                     <textarea id="institute_address" class="form-control" name="institute_address" 
                                               rows="2" placeholder="Full address of your institute"></textarea>
                                 </div>
-                            </div>
+        </div>
 
                             <!-- Parent specific fields -->
                             <div id="parentFields" class="role-specific-fields" style="display: none;">
@@ -260,7 +260,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
+        </div>
 
                         <!-- Submit Button -->
                         <div class="d-grid">

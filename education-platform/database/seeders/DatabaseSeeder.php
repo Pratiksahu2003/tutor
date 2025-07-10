@@ -13,22 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Run seeders in correct order
+        // Clear existing data (optional - be careful in production)
+        // User::query()->delete();
+        
         $this->call([
-            // User and permission seeders
-            PermissionSeeder::class,
-            RoleSeeder::class,
-            AdminUserSeeder::class,
-            
-            // Exam system seeders
-            ExamCategorySeeder::class,
             SubjectSeeder::class,
-            ExamSeeder::class,
+            InstituteSeeder::class,
+            UserSeeder::class,
         ]);
 
-        // Create test users if needed
-        // User::factory(10)->create();
-
-        $this->command->info('Database seeding completed successfully!');
+        $this->command->info('Database seeded successfully with comprehensive dummy data!');
+        $this->command->info('Available login credentials:');
+        $this->command->info('Admin: admin@educationplatform.com / password123');
+        $this->command->info('Institute Users: Check institute emails with password123');
+        $this->command->info('Teachers: Check teacher emails with password123');
+        $this->command->info('Students: Check student emails with password123');
+        $this->command->info('Parents: parent1@parent.com to parent5@parent.com / password123');
     }
 }

@@ -61,7 +61,7 @@ class DashboardController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        
+
         // Base validation rules
         $rules = [
             'name' => 'required|string|max:255',
