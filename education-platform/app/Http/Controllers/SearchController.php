@@ -13,6 +13,121 @@ use Illuminate\Support\Facades\Auth;
 
 class SearchController extends Controller
 {
+    /**
+     * Display the main search page
+     */
+    public function index(Request $request)
+    {
+        $searchTerm = $request->get('q', '');
+        $type = $request->get('type', 'all');
+        $location = $request->get('location', '');
+        
+        $results = [
+            'teachers' => collect(),
+            'institutes' => collect(),
+            'subjects' => collect(),
+        ];
+        
+        if ($searchTerm) {
+            // Search teachers
+            if ($type === 'all' || $type === 'teachers') {
+                $results['teachers'] = TeacherProfile::where('verification_status', 'verified')
+                    ->whereHas('user', function($q) use ($searchTerm, $location) {
+                        $q->where('name', 'like', "%{$searchTerm}%")
+                          ->where('is_active', true);
+                        if ($location) {
+                            $q->where(function($locQ) use ($location) {
+                                $locQ->where('city', 'like', "%{$location}%")
+                                     ->orWhere('state', 'like', "%{$location}%");
+                            });
+                        }
+                    })
+                    ->orWhere('specialization', 'like', "%{$searchTerm}%")
+                    ->orWhere('bio', 'like', "%{$searchTerm}%")
+                    ->with(['user', 'subject'])
+                    ->take(6)
+                    ->get()
+                    ->map(function($teacher) {
+                        return [
+                            'id' => $teacher->id,
+                            'type' => 'teacher',
+                            'name' => $teacher->user->name ?? 'Unknown',
+                            'title' => $teacher->specialization ?? 'Teacher',
+                            'location' => trim(($teacher->city ?? '') . ', ' . ($teacher->state ?? ''), ', '),
+                            'rating' => $teacher->rating ?? 4.0,
+                            'experience' => $teacher->experience_years ?? 0,
+                            'hourly_rate' => $teacher->hourly_rate,
+                            'avatar' => $teacher->avatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($teacher->user->name ?? 'Teacher') . '&size=200&background=random',
+                            'url' => route('teachers.show', $teacher->slug ?: 'teacher-' . $teacher->id),
+                        ];
+                    });
+            }
+            
+            // Search institutes
+            if ($type === 'all' || $type === 'institutes') {
+                $results['institutes'] = Institute::where('verification_status', 'verified')
+                    ->whereHas('user', function($q) {
+                        $q->where('is_active', true);
+                    })
+                    ->where(function($q) use ($searchTerm, $location) {
+                        $q->where('institute_name', 'like', "%{$searchTerm}%")
+                          ->orWhere('description', 'like', "%{$searchTerm}%");
+                        if ($location) {
+                            $q->where('city', 'like', "%{$location}%")
+                              ->orWhere('state', 'like', "%{$location}%");
+                        }
+                    })
+                    ->with('user')
+                    ->take(6)
+                    ->get()
+                    ->map(function($institute) {
+                        return [
+                            'id' => $institute->id,
+                            'type' => 'institute',
+                            'name' => $institute->institute_name,
+                            'title' => $institute->institute_type ?? 'Institute',
+                            'location' => trim(($institute->city ?? '') . ', ' . ($institute->state ?? ''), ', '),
+                            'rating' => $institute->rating ?? 4.0,
+                            'total_students' => $institute->total_students ?? 0,
+                            'established_year' => $institute->established_year,
+                            'logo' => $institute->logo ?: 'https://ui-avatars.com/api/?name=' . urlencode($institute->institute_name) . '&size=200&background=random',
+                            'url' => route('institutes.show', $institute->slug ?: 'institute-' . $institute->id),
+                        ];
+                    });
+            }
+            
+            // Search subjects
+            if ($type === 'all' || $type === 'subjects') {
+                $results['subjects'] = Subject::where('status', 'active')
+                    ->where('name', 'like', "%{$searchTerm}%")
+                    ->take(6)
+                    ->get()
+                    ->map(function($subject) {
+                        return [
+                            'id' => $subject->id,
+                            'type' => 'subject',
+                            'name' => $subject->name,
+                            'title' => 'Subject',
+                            'teachers_count' => $subject->teacherProfiles()->count(),
+                            'url' => route('teachers.index', ['subject' => $subject->slug]),
+                        ];
+                    });
+            }
+        }
+        
+        $totalResults = $results['teachers']->count() + $results['institutes']->count() + $results['subjects']->count();
+        
+        return view('search.index', [
+            'results' => $results,
+            'searchTerm' => $searchTerm,
+            'type' => $type,
+            'location' => $location,
+            'totalResults' => $totalResults,
+            'popularSubjects' => Subject::where('status', 'active')->take(12)->get(),
+            'popularCities' => $this->getPopularCities(),
+        ]);
+    }
+
     // =======================
     // TEACHER LISTINGS
     // =======================

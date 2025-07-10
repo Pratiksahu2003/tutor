@@ -11,18 +11,27 @@ class TeacherProfile extends Model
 
     protected $fillable = [
         'user_id',
+        'subject_id',
         'institute_id',
         'qualification',
+        'qualifications',
         'bio',
+        'avatar',
         'experience_years',
         'hourly_rate',
         'specialization',
+        'slug',
         'languages',
         'availability',
+        'availability_status',
         'teaching_mode',
         'rating',
         'total_students',
         'verified',
+        'verification_status',
+        'is_featured',
+        'city',
+        'state',
         'employment_type',
         'institute_subjects',
         'institute_experience',
@@ -54,6 +63,7 @@ class TeacherProfile extends Model
         'hourly_rate' => 'decimal:2',
         'rating' => 'decimal:2',
         'verified' => 'boolean',
+        'is_featured' => 'boolean',
         'is_institute_verified' => 'boolean',
         'is_branch_verified' => 'boolean',
         'branch_permissions' => 'array',
@@ -67,12 +77,37 @@ class TeacherProfile extends Model
         'online_classes' => 'boolean',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($teacher) {
+            if (empty($teacher->slug) && $teacher->user) {
+                $teacher->slug = \Illuminate\Support\Str::slug($teacher->user->name);
+            }
+        });
+
+        static::updating(function ($teacher) {
+            if ($teacher->isDirty('user_id') && empty($teacher->slug) && $teacher->user) {
+                $teacher->slug = \Illuminate\Support\Str::slug($teacher->user->name);
+            }
+        });
+    }
+
     /**
      * Get the user that owns the teacher profile
      */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the primary subject that the teacher teaches
+     */
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
 
     /**

@@ -25,24 +25,26 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Search Routes
-Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/search/teachers', [SearchController::class, 'teachers'])->name('search.teachers');
 Route::get('/search/institutes', [SearchController::class, 'institutes'])->name('search.institutes');
 Route::post('/search/filter', [SearchController::class, 'filter'])->name('search.filter');
 
 // Teacher and Institute Listing Routes
 Route::prefix('teachers')->name('teachers.')->group(function () {
-    Route::get('/', [SearchController::class, 'teacherListing'])->name('index');
-    Route::get('/{slug}', [SearchController::class, 'teacherProfile'])->name('show');
-    Route::get('/subject/{slug}', [SearchController::class, 'teachersBySubject'])->name('by-subject');
-    Route::get('/city/{city}', [SearchController::class, 'teachersByCity'])->name('by-city');
+    Route::get('/', [App\Http\Controllers\TeacherListingController::class, 'index'])->name('index');
+    Route::get('/{slug}', [App\Http\Controllers\TeacherListingController::class, 'show'])->name('show');
+    Route::get('/subject/{slug}', [App\Http\Controllers\TeacherListingController::class, 'bySubject'])->name('by-subject');
+    Route::get('/city/{city}', [App\Http\Controllers\TeacherListingController::class, 'byCity'])->name('by-city');
+    Route::get('/card/data', [App\Http\Controllers\TeacherListingController::class, 'getTeacherCard'])->name('card-data');
 });
 
 Route::prefix('institutes')->name('institutes.')->group(function () {
-    Route::get('/', [SearchController::class, 'instituteListing'])->name('index');
-    Route::get('/{slug}', [SearchController::class, 'instituteProfile'])->name('show');
-    Route::get('/{slug}/teachers', [SearchController::class, 'instituteTeachers'])->name('teachers');
-    Route::get('/city/{city}', [SearchController::class, 'institutesByCity'])->name('by-city');
+    Route::get('/', [App\Http\Controllers\InstituteListingController::class, 'index'])->name('index');
+    Route::get('/{slug}', [App\Http\Controllers\InstituteListingController::class, 'show'])->name('show');
+    Route::get('/{slug}/teachers', [App\Http\Controllers\InstituteListingController::class, 'teachers'])->name('teachers');
+    Route::get('/city/{city}', [App\Http\Controllers\InstituteListingController::class, 'byCity'])->name('by-city');
+    Route::get('/card/data', [App\Http\Controllers\InstituteListingController::class, 'getInstituteCard'])->name('card-data');
 });
 
 // Contact Routes

@@ -69,6 +69,14 @@ class Subject extends Model
     }
 
     /**
+     * Get teacher profiles for this subject (direct relationship)
+     */
+    public function teacherProfiles()
+    {
+        return $this->hasMany(TeacherProfile::class, 'subject_id');
+    }
+
+    /**
      * Get institutes that offer this subject
      */
     public function institutes()
