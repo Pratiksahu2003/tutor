@@ -30,6 +30,17 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display the modern dashboard
+     */
+    public function modern()
+    {
+        $user = Auth::user();
+        $dashboardData = $this->getDashboardData($user);
+        
+        return view('dashboard.modern', compact('user', 'dashboardData'));
+    }
+
+    /**
      * Show profile edit form
      */
     public function profile()
@@ -119,7 +130,7 @@ class DashboardController extends Controller
     /**
      * Get dashboard data based on user role
      */
-    private function getDashboardData($user)
+    public function getDashboardData($user)
     {
         $baseData = [
             'user' => $user,
