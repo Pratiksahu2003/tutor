@@ -214,14 +214,13 @@
 
         /* Badge Styles */
         .nav-badge {
-            margin-left: auto;
-            background: var(--danger-color);
+            background: var(--primary-color);
             color: white;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
-            min-width: 20px;
-            text-align: center;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.8rem;
+            margin-left: auto;
+            font-weight: 600;
         }
 
         .sidebar.collapsed .nav-badge {
@@ -486,6 +485,92 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-secondary);
         }
+
+        .nav-badge {
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.8rem;
+            margin-left: auto;
+            font-weight: 600;
+        }
+
+        .nav-logout-form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-logout-form .nav-link {
+            color: var(--danger-color) !important;
+        }
+
+        .nav-logout-form .nav-link:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: var(--danger-color) !important;
+        }
+
+        /* Badge variations */
+        .nav-badge.bg-success {
+            background: var(--success-color) !important;
+        }
+
+        .nav-badge.bg-warning {
+            background: var(--warning-color) !important;
+        }
+
+        .nav-badge.bg-danger {
+            background: var(--danger-color) !important;
+        }
+
+        .nav-badge.bg-info {
+            background: var(--info-color) !important;
+        }
+
+        /* External link indicator */
+        .nav-link .bi-box-arrow-up-right {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover .bi-box-arrow-up-right {
+            opacity: 1;
+        }
+
+        /* Section dividers */
+        .nav-section {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        /* Hover effects */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 0;
+            background: var(--primary-color);
+            transform: translateY(-50%);
+            transition: height 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            height: 60%;
+        }
     </style>
 
     @stack('styles')
@@ -511,7 +596,7 @@
                 <div class="nav-section-title">Main</div>
                 
                 <div class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('dashboard.modern') }}" class="nav-link {{ request()->routeIs('dashboard*') ? 'active' : '' }}">
                         <i class="bi bi-speedometer2"></i>
                         <span>Dashboard</span>
                     </a>
@@ -523,6 +608,16 @@
                         <span>Profile Settings</span>
                     </a>
                 </div>
+
+                @if(auth()->user()->isAdmin())
+                    <div class="nav-item">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link" target="_blank">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Admin Panel</span>
+                            <i class="bi bi-box-arrow-up-right ms-auto" style="font-size: 0.8rem;"></i>
+                        </a>
+                    </div>
+                @endif
             </div>
 
             <!-- Role-specific Navigation -->
@@ -531,24 +626,44 @@
                     <div class="nav-section-title">Administration</div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.users.index') }}" class="nav-link">
                             <i class="bi bi-people"></i>
                             <span>User Management</span>
+                            <span class="nav-badge">{{ \App\Models\User::count() }}</span>
                         </a>
                     </div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.teachers.index', ['verified' => 'unverified']) }}" class="nav-link">
                             <i class="bi bi-patch-check"></i>
-                            <span>Verifications</span>
-                            <span class="nav-badge">5</span>
+                            <span>Teacher Verifications</span>
+                            @if(\App\Models\TeacherProfile::where('verified', false)->count() > 0)
+                                <span class="nav-badge">{{ \App\Models\TeacherProfile::where('verified', false)->count() }}</span>
+                            @endif
                         </a>
                     </div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('admin.institutes.index', ['verified' => 'unverified']) }}" class="nav-link">
+                            <i class="bi bi-building-check"></i>
+                            <span>Institute Verifications</span>
+                            @if(\App\Models\Institute::where('verified', false)->count() > 0)
+                                <span class="nav-badge">{{ \App\Models\Institute::where('verified', false)->count() }}</span>
+                            @endif
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ route('admin.teachers.statistics') }}" class="nav-link">
                             <i class="bi bi-bar-chart"></i>
                             <span>Analytics</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="{{ route('admin.roles.index') }}" class="nav-link">
+                            <i class="bi bi-person-badge"></i>
+                            <span>Roles & Permissions</span>
                         </a>
                     </div>
                 </div>
@@ -558,9 +673,9 @@
                     <div class="nav-section-title">Teaching</div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('teacher.dashboard') }}" class="nav-link {{ request()->routeIs('teacher.*') ? 'active' : '' }}">
                             <i class="bi bi-people"></i>
-                            <span>My Students</span>
+                            <span>Teacher Dashboard</span>
                         </a>
                     </div>
                     
@@ -574,7 +689,7 @@
                     <div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="bi bi-book"></i>
-                            <span>Subjects</span>
+                            <span>My Subjects</span>
                         </a>
                     </div>
                     
@@ -584,6 +699,21 @@
                             <span>Earnings</span>
                         </a>
                     </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-chat-square-dots"></i>
+                            <span>Student Inquiries</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" target="_blank">
+                            <i class="bi bi-eye"></i>
+                            <span>View Public Profile</span>
+                            <i class="bi bi-box-arrow-up-right ms-auto" style="font-size: 0.8rem;"></i>
+                        </a>
+                    </div>
                 </div>
 
             @elseif(auth()->user()->role === 'institute')
@@ -591,9 +721,9 @@
                     <div class="nav-section-title">Management</div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('institute.dashboard') }}" class="nav-link {{ request()->routeIs('institute.*') ? 'active' : '' }}">
                             <i class="bi bi-person-badge"></i>
-                            <span>Teachers</span>
+                            <span>Institute Dashboard</span>
                         </a>
                     </div>
                     
@@ -617,6 +747,21 @@
                             <span>Analytics</span>
                         </a>
                     </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="bi bi-chat-square-dots"></i>
+                            <span>Inquiries</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" target="_blank">
+                            <i class="bi bi-eye"></i>
+                            <span>View Public Profile</span>
+                            <i class="bi bi-box-arrow-up-right ms-auto" style="font-size: 0.8rem;"></i>
+                        </a>
+                    </div>
                 </div>
 
             @else
@@ -624,42 +769,122 @@
                     <div class="nav-section-title">Learning</div>
                     
                     <div class="nav-item">
-                        <a href="{{ route('search.teachers') }}" class="nav-link">
+                        <a href="{{ route('search.teachers') }}" class="nav-link {{ request()->routeIs('search.teachers') ? 'active' : '' }}">
                             <i class="bi bi-search"></i>
                             <span>Find Teachers</span>
                         </a>
                     </div>
-                    
+
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="bi bi-bookmark"></i>
-                            <span>My Bookings</span>
+                        <a href="{{ route('institutes.index') }}" class="nav-link {{ request()->routeIs('institutes.*') ? 'active' : '' }}">
+                            <i class="bi bi-building"></i>
+                            <span>Find Institutes</span>
                         </a>
                     </div>
                     
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="bi bi-chat-dots"></i>
-                            <span>Messages</span>
-                            <span class="nav-badge">3</span>
-                        </a>
-                    </div>
-                    
-                    <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="bi bi-star"></i>
-                            <span>Reviews</span>
-                        </a>
-                    </div>
+                    <!-- Student learning routes - use working student routes -->
+                    @if(auth()->user()->role === 'student')
+                        <div class="nav-item">
+                            <a href="{{ route('student.bookings.index') }}" class="nav-link {{ request()->routeIs('student.bookings.*') ? 'active' : '' }}">
+                                <i class="bi bi-bookmark"></i>
+                                <span>My Bookings</span>
+                            </a>
+                        </div>
+                        
+                        <div class="nav-item">
+                            <a href="{{ route('student.communication.messages') }}" class="nav-link {{ request()->routeIs('student.communication.*') ? 'active' : '' }}">
+                                <i class="bi bi-chat-dots"></i>
+                                <span>Messages</span>
+                            </a>
+                        </div>
+                        
+                        <div class="nav-item">
+                            <a href="{{ route('student.reviews.index') }}" class="nav-link {{ request()->routeIs('student.reviews.*') ? 'active' : '' }}">
+                                <i class="bi bi-star"></i>
+                                <span>My Reviews</span>
+                            </a>
+                        </div>
+
+                        <div class="nav-item">
+                            <a href="{{ route('student.favorites.teachers') }}" class="nav-link {{ request()->routeIs('student.favorites.*') ? 'active' : '' }}">
+                                <i class="bi bi-heart"></i>
+                                <span>Favorites</span>
+                            </a>
+                        </div>
+                    @else
+                        <!-- Non-student users get basic search options -->
+                        <div class="nav-item">
+                            <a href="{{ route('student.bookings.index') }}" class="nav-link">
+                                <i class="bi bi-bookmark"></i>
+                                <span>Bookings</span>
+                            </a>
+                        </div>
+                        
+                        <div class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-chat-dots"></i>
+                                <span>Messages</span>
+                            </a>
+                        </div>
+                        
+                        <div class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-star"></i>
+                                <span>Reviews</span>
+                            </a>
+                        </div>
+
+                        <div class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="bi bi-heart"></i>
+                                <span>Favorites</span>
+                            </a>
+                        </div>
+                    @endif
                 </div>
             @endif
+
+            <!-- Browse & Discover -->
+            <div class="nav-section">
+                <div class="nav-section-title">Browse & Discover</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('teachers.index') }}" class="nav-link {{ request()->routeIs('teachers.index') ? 'active' : '' }}">
+                        <i class="bi bi-person-video2"></i>
+                        <span>All Teachers</span>
+                        <span class="nav-badge">{{ \App\Models\User::where('role', 'teacher')->count() }}</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('institutes.index') }}" class="nav-link {{ request()->routeIs('institutes.index') ? 'active' : '' }}">
+                        <i class="bi bi-buildings"></i>
+                        <span>All Institutes</span>
+                        <span class="nav-badge">{{ \App\Models\Institute::count() }}</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('search') }}" class="nav-link {{ request()->routeIs('search') ? 'active' : '' }}">
+                        <i class="bi bi-search-heart"></i>
+                        <span>Advanced Search</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('blog.index') }}" class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}">
+                        <i class="bi bi-journal-text"></i>
+                        <span>Blog & Articles</span>
+                    </a>
+                </div>
+            </div>
 
             <!-- General Navigation -->
             <div class="nav-section">
                 <div class="nav-section-title">General</div>
                 
                 <div class="nav-item">
-                    <a href="{{ route('home') }}" class="nav-link">
+                    <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
                         <i class="bi bi-house"></i>
                         <span>Home</span>
                     </a>
@@ -674,17 +899,53 @@
                 </div>
                 
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
+                    <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}">
+                        <i class="bi bi-info-circle"></i>
+                        <span>About Us</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">
+                        <i class="bi bi-telephone"></i>
+                        <span>Contact Support</span>
                     </a>
                 </div>
                 
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">
                         <i class="bi bi-question-circle"></i>
-                        <span>Help & Support</span>
+                        <span>Help & FAQ</span>
                     </a>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="nav-section">
+                <div class="nav-section-title">Account</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                        <i class="bi bi-person-lines-fill"></i>
+                        <span>Account Settings</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Privacy & Security</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <form method="POST" action="{{ route('logout') }}" class="nav-logout-form">
+                        @csrf
+                        <a href="#" class="nav-link text-danger" onclick="event.preventDefault(); this.closest('form').submit();">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
+                    </form>
                 </div>
             </div>
         </nav>

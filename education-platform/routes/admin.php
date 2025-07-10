@@ -4,11 +4,10 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\TeacherManagementController;
+use App\Http\Controllers\Admin\InstituteManagementController;
 use App\Http\Controllers\Admin\CMSController;
-// use App\Http\Controllers\Admin\LeadManagementController;
-// use App\Http\Controllers\Admin\AnalyticsController;
-// use App\Http\Controllers\Admin\SettingsController;
-// use App\Http\Controllers\Admin\ContentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,93 +19,97 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     // Main Admin Dashboard
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
-        ->middleware('permission:view-dashboard')
-        ->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('home');
     
     // Dashboard API routes
     Route::prefix('api')->name('api.')->group(function () {
-        Route::get('/stats', [AdminDashboardController::class, 'getStats'])
-            ->middleware('permission:view-dashboard');
-        Route::get('/activity', [AdminDashboardController::class, 'getRecentActivity'])
-            ->middleware('permission:view-dashboard');
-        // Route::get('/analytics', [AnalyticsController::class, 'getAnalytics'])
-        //     ->middleware('permission:view-dashboard');
+        Route::get('/stats', [AdminDashboardController::class, 'getStats']);
+        Route::get('/activity', [AdminDashboardController::class, 'getRecentActivity']);
     });
     
-    // User Management Routes
-    Route::prefix('users')->name('users.')->middleware('permission:view-users')->group(function () {
+    // ===== USER MANAGEMENT =====
+    Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', [UserManagementController::class, 'index'])->name('index');
+        Route::get('/create', [UserManagementController::class, 'create'])->name('create');
+        Route::post('/', [UserManagementController::class, 'store'])->name('store');
         Route::get('/{user}', [UserManagementController::class, 'show'])->name('show');
-        
-        Route::middleware('permission:create-users')->group(function () {
-            Route::get('/create', [UserManagementController::class, 'create'])->name('create');
-            Route::post('/', [UserManagementController::class, 'store'])->name('store');
-        });
-        
-        Route::middleware('permission:edit-users')->group(function () {
-            Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit');
-            Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
-        });
-        
-        Route::middleware('permission:delete-users')->group(function () {
-            Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
-        });
-        
-        Route::middleware('permission:manage-user-roles')->group(function () {
-            Route::post('/{user}/roles', [UserManagementController::class, 'assignRole'])->name('assign-role');
-            Route::delete('/{user}/roles/{role}', [UserManagementController::class, 'removeRole'])->name('remove-role');
-        });
+        Route::get('/{user}/edit', [UserManagementController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [UserManagementController::class, 'update'])->name('update');
+        Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('destroy');
+        Route::patch('/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/{user}/assign-role', [UserManagementController::class, 'assignRole'])->name('assign-role');
+        Route::delete('/{user}/remove-role', [UserManagementController::class, 'removeRole'])->name('remove-role');
+        Route::get('/by-role/ajax', [UserManagementController::class, 'getUsersByRole'])->name('by-role-ajax');
     });
-    
-    // Role Management Routes
-    Route::middleware('permission:view-roles')->group(function () {
-        Route::resource('roles', RoleController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
-        
-        Route::middleware('permission:create-roles')->group(function () {
-            Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
-            Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
-        });
-        
-        Route::middleware('permission:edit-roles')->group(function () {
-            Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-            Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
-        });
-        
-        Route::middleware('permission:delete-roles')->group(function () {
-            Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
-        });
-        
-        Route::middleware('permission:assign-permissions')->group(function () {
-            Route::post('/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->name('roles.assign-permission');
-            Route::delete('/roles/{role}/permissions/{permission}', [RoleController::class, 'removePermission'])->name('roles.remove-permission');
-        });
+
+    // ===== ROLE & PERMISSION MANAGEMENT =====
+    // Roles
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [RolePermissionController::class, 'rolesIndex'])->name('index');
+        Route::get('/create', [RolePermissionController::class, 'rolesCreate'])->name('create');
+        Route::post('/', [RolePermissionController::class, 'rolesStore'])->name('store');
+        Route::get('/{role}/edit', [RolePermissionController::class, 'rolesEdit'])->name('edit');
+        Route::put('/{role}', [RolePermissionController::class, 'rolesUpdate'])->name('update');
+        Route::delete('/{role}', [RolePermissionController::class, 'rolesDestroy'])->name('destroy');
     });
-    
-    // Permission Management Routes
-    Route::middleware('permission:view-permissions')->group(function () {
-        Route::resource('permissions', PermissionController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
-        
-        Route::middleware('permission:create-permissions')->group(function () {
-            Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
-            Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
-        });
-        
-        Route::middleware('permission:edit-permissions')->group(function () {
-            Route::get('/permissions/{permission}/edit', [PermissionController::class, 'edit'])->name('permissions.edit');
-            Route::put('/permissions/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
-        });
-        
-        Route::middleware('permission:delete-permissions')->group(function () {
-            Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
-        });
+
+    // Permissions
+    Route::prefix('permissions')->name('permissions.')->group(function () {
+        Route::get('/', [RolePermissionController::class, 'permissionsIndex'])->name('index');
+        Route::get('/create', [RolePermissionController::class, 'permissionsCreate'])->name('create');
+        Route::post('/', [RolePermissionController::class, 'permissionsStore'])->name('store');
+        Route::get('/{permission}/edit', [RolePermissionController::class, 'permissionsEdit'])->name('edit');
+        Route::put('/{permission}', [RolePermissionController::class, 'permissionsUpdate'])->name('update');
+        Route::delete('/{permission}', [RolePermissionController::class, 'permissionsDestroy'])->name('destroy');
+        Route::post('/initialize', [RolePermissionController::class, 'initializePermissions'])->name('initialize');
     });
-    
-    // CMS Management Routes
-    Route::prefix('cms')->name('cms.')->middleware('permission:manage-content')->group(function () {
+
+    // Role-Permission Actions (AJAX)
+    Route::post('/role-permission/assign', [RolePermissionController::class, 'assignPermissionToRole'])->name('role-permission.assign');
+    Route::delete('/role-permission/remove', [RolePermissionController::class, 'removePermissionFromRole'])->name('role-permission.remove');
+
+    // ===== TEACHER MANAGEMENT =====
+    Route::prefix('teachers')->name('teachers.')->group(function () {
+        Route::get('/', [TeacherManagementController::class, 'index'])->name('index');
+        Route::get('/create', [TeacherManagementController::class, 'create'])->name('create');
+        Route::post('/', [TeacherManagementController::class, 'store'])->name('store');
+        Route::get('/{teacher}', [TeacherManagementController::class, 'show'])->name('show');
+        Route::get('/{teacher}/edit', [TeacherManagementController::class, 'edit'])->name('edit');
+        Route::put('/{teacher}', [TeacherManagementController::class, 'update'])->name('update');
+        Route::delete('/{teacher}', [TeacherManagementController::class, 'destroy'])->name('destroy');
+        Route::patch('/{teacher}/verify', [TeacherManagementController::class, 'verify'])->name('verify');
+        Route::patch('/{teacher}/unverify', [TeacherManagementController::class, 'unverify'])->name('unverify');
+        Route::patch('/{teacher}/toggle-status', [TeacherManagementController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/statistics/data', [TeacherManagementController::class, 'statistics'])->name('statistics');
+        Route::post('/bulk/verify', [TeacherManagementController::class, 'bulkVerify'])->name('bulk-verify');
+        Route::post('/bulk/toggle-status', [TeacherManagementController::class, 'bulkToggleStatus'])->name('bulk-toggle-status');
+    });
+
+    // ===== INSTITUTE MANAGEMENT =====
+    Route::prefix('institutes')->name('institutes.')->group(function () {
+        Route::get('/', [InstituteManagementController::class, 'index'])->name('index');
+        Route::get('/create', [InstituteManagementController::class, 'create'])->name('create');
+        Route::post('/', [InstituteManagementController::class, 'store'])->name('store');
+        Route::get('/{institute}', [InstituteManagementController::class, 'show'])->name('show');
+        Route::get('/{institute}/edit', [InstituteManagementController::class, 'edit'])->name('edit');
+        Route::put('/{institute}', [InstituteManagementController::class, 'update'])->name('update');
+        Route::delete('/{institute}', [InstituteManagementController::class, 'destroy'])->name('destroy');
+        Route::patch('/{institute}/verify', [InstituteManagementController::class, 'verify'])->name('verify');
+        Route::patch('/{institute}/unverify', [InstituteManagementController::class, 'unverify'])->name('unverify');
+        Route::patch('/{institute}/toggle-status', [InstituteManagementController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/statistics/data', [InstituteManagementController::class, 'statistics'])->name('statistics');
+        Route::post('/bulk/verify', [InstituteManagementController::class, 'bulkVerify'])->name('bulk-verify');
+        Route::post('/bulk/toggle-status', [InstituteManagementController::class, 'bulkToggleStatus'])->name('bulk-toggle-status');
+        Route::patch('/{institute}/rating', [InstituteManagementController::class, 'updateRating'])->name('update-rating');
+        Route::patch('/{institute}/student-count', [InstituteManagementController::class, 'updateStudentCount'])->name('update-student-count');
+    });
+
+    // ===== CMS MANAGEMENT =====
+    Route::prefix('cms')->name('cms.')->group(function () {
         // Pages Management
         Route::prefix('pages')->name('pages.')->group(function () {
             Route::get('/', [CMSController::class, 'pages'])->name('index');
@@ -139,70 +142,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
             Route::get('/folders', [CMSController::class, 'mediaFolders'])->name('folders');
             Route::post('/folders', [CMSController::class, 'createFolder'])->name('folders.create');
         });
-        
-        // Menu Management
-        Route::prefix('menus')->name('menus.')->group(function () {
-            Route::get('/', [CMSController::class, 'menus'])->name('index');
-            Route::get('/create', [CMSController::class, 'createMenu'])->name('create');
-            Route::post('/', [CMSController::class, 'storeMenu'])->name('store');
-            Route::get('/{menu}/edit', [CMSController::class, 'editMenu'])->name('edit');
-            Route::put('/{menu}', [CMSController::class, 'updateMenu'])->name('update');
-            Route::delete('/{menu}', [CMSController::class, 'destroyMenu'])->name('destroy');
-        });
-        
-        // Slider Management
-        Route::prefix('sliders')->name('sliders.')->group(function () {
-            Route::get('/', [CMSController::class, 'sliders'])->name('index');
-            Route::get('/create', [CMSController::class, 'createSlider'])->name('create');
-            Route::post('/', [CMSController::class, 'storeSlider'])->name('store');
-            Route::get('/{slider}/edit', [CMSController::class, 'editSlider'])->name('edit');
-            Route::put('/{slider}', [CMSController::class, 'updateSlider'])->name('update');
-            Route::delete('/{slider}', [CMSController::class, 'destroySlider'])->name('destroy');
-        });
     });
+
+    // ===== SYSTEM & MAINTENANCE =====
+    Route::get('/system-info', [AdminDashboardController::class, 'systemInfo'])->name('system-info');
     
-    /*
-    // Lead Management Routes - COMMENTED OUT DUE TO MISSING CONTROLLER
-    Route::prefix('leads')->name('leads.')->middleware('permission:manage-leads')->group(function () {
-        Route::get('/', [LeadManagementController::class, 'index'])->name('index');
-        Route::get('/{lead}', [LeadManagementController::class, 'show'])->name('show');
-        Route::put('/{lead}/status', [LeadManagementController::class, 'updateStatus'])->name('update-status');
-        Route::post('/{lead}/assign', [LeadManagementController::class, 'assignTo'])->name('assign');
-        Route::post('/{lead}/note', [LeadManagementController::class, 'addNote'])->name('add-note');
-        Route::delete('/{lead}', [LeadManagementController::class, 'destroy'])->name('destroy');
-        Route::get('/export/csv', [LeadManagementController::class, 'exportCSV'])->name('export-csv');
-        Route::get('/analytics/overview', [LeadManagementController::class, 'analytics'])->name('analytics');
-    });
-    
-    // Analytics & Reports Routes - COMMENTED OUT DUE TO MISSING CONTROLLER
-    Route::prefix('analytics')->name('analytics.')->middleware('permission:view-reports')->group(function () {
-        Route::get('/', [AnalyticsController::class, 'index'])->name('index');
-        Route::get('/users', [AnalyticsController::class, 'userAnalytics'])->name('users');
-        Route::get('/institutes', [AnalyticsController::class, 'instituteAnalytics'])->name('institutes');
-        Route::get('/teachers', [AnalyticsController::class, 'teacherAnalytics'])->name('teachers');
-        Route::get('/leads', [AnalyticsController::class, 'leadAnalytics'])->name('leads');
-        Route::get('/performance', [AnalyticsController::class, 'performanceMetrics'])->name('performance');
-        Route::get('/financial', [AnalyticsController::class, 'financialReports'])->name('financial');
-    });
-    
-    // Settings Routes - COMMENTED OUT DUE TO MISSING CONTROLLER
-    Route::prefix('settings')->name('settings.')->middleware('permission:manage-settings')->group(function () {
-        Route::get('/', [SettingsController::class, 'index'])->name('index');
-        Route::get('/general', [SettingsController::class, 'general'])->name('general');
-        Route::put('/general', [SettingsController::class, 'updateGeneral'])->name('general.update');
-        Route::get('/email', [SettingsController::class, 'email'])->name('email');
-        Route::put('/email', [SettingsController::class, 'updateEmail'])->name('email.update');
-        Route::get('/payment', [SettingsController::class, 'payment'])->name('payment');
-        Route::put('/payment', [SettingsController::class, 'updatePayment'])->name('payment.update');
-        Route::get('/seo', [SettingsController::class, 'seo'])->name('seo');
-        Route::put('/seo', [SettingsController::class, 'updateSeo'])->name('seo.update');
-        Route::get('/social', [SettingsController::class, 'social'])->name('social');
-        Route::put('/social', [SettingsController::class, 'updateSocial'])->name('social.update');
-    });
-    */
-    
-    // Additional maintenance and utility routes
-    Route::get('/system-info', [AdminDashboardController::class, 'systemInfo'])
-        ->middleware('permission:view-dashboard')
-        ->name('system-info');
 }); 

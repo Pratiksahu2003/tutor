@@ -12,6 +12,7 @@ use App\Models\BlogPost;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminDashboardController extends Controller
 {
@@ -141,50 +142,64 @@ class AdminDashboardController extends Controller
         $activities = collect();
         
         // Recent user registrations
-        $recentUsers = User::with('roles')
-            ->latest()
-            ->take(5)
-            ->get();
-            
-        foreach ($recentUsers as $user) {
-            $role = $user->roles->first()?->name ?? 'user';
-            $activities->push([
-                'type' => 'user',
-                'title' => 'New ' . ucfirst($role) . ' Registration',
-                'description' => $user->name . ' joined the platform',
-                'time' => $user->created_at->diffForHumans(),
-                'created_at' => $user->created_at
-            ]);
+        try {
+            $recentUsers = User::with('roles')
+                ->latest()
+                ->take(5)
+                ->get();
+                
+            foreach ($recentUsers as $user) {
+                $role = $user->roles->first()?->name ?? 'user';
+                $activities->push([
+                    'type' => 'user',
+                    'title' => 'New ' . ucfirst($role) . ' Registration',
+                    'description' => $user->name . ' joined the platform',
+                    'time' => $user->created_at->diffForHumans(),
+                    'created_at' => $user->created_at
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Handle case where users table might not exist or have issues
         }
         
         // Recent leads
-        $recentLeads = Lead::latest()
-            ->take(5)
-            ->get();
-            
-        foreach ($recentLeads as $lead) {
-            $activities->push([
-                'type' => 'lead',
-                'title' => 'New Lead Generated',
-                'description' => $lead->full_name . ' submitted a ' . $lead->lead_type . ' inquiry',
-                'time' => $lead->created_at->diffForHumans(),
-                'created_at' => $lead->created_at
-            ]);
+        try {
+            $recentLeads = Lead::latest()
+                ->take(5)
+                ->get();
+                
+            foreach ($recentLeads as $lead) {
+                $activities->push([
+                    'type' => 'lead',
+                    'title' => 'New Lead Generated',
+                    'description' => $lead->full_name . ' submitted a ' . $lead->lead_type . ' inquiry',
+                    'time' => $lead->created_at->diffForHumans(),
+                    'created_at' => $lead->created_at
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Handle case where leads table might not exist
         }
         
-        // Recent content
-        $recentPages = Page::latest()
-            ->take(3)
-            ->get();
-            
-        foreach ($recentPages as $page) {
-            $activities->push([
-                'type' => 'content',
-                'title' => 'Page ' . ($page->wasRecentlyCreated ? 'Created' : 'Updated'),
-                'description' => 'Page "' . $page->title . '" was ' . ($page->wasRecentlyCreated ? 'created' : 'updated'),
-                'time' => $page->updated_at->diffForHumans(),
-                'created_at' => $page->updated_at
-            ]);
+        // Recent content - handle pages table that might not exist
+        try {
+            if (\Schema::hasTable('pages')) {
+                $recentPages = Page::latest()
+                    ->take(3)
+                    ->get();
+                    
+                foreach ($recentPages as $page) {
+                    $activities->push([
+                        'type' => 'content',
+                        'title' => 'Page ' . ($page->wasRecentlyCreated ? 'Created' : 'Updated'),
+                        'description' => 'Page "' . $page->title . '" was ' . ($page->wasRecentlyCreated ? 'created' : 'updated'),
+                        'time' => $page->updated_at->diffForHumans(),
+                        'created_at' => $page->updated_at
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            // Handle case where pages table doesn't exist or Page model has issues
         }
         
         // Sort by creation time and take latest 10
