@@ -1,9 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - Education Platform')
+@section('title', 'Dashboard - ' . ucfirst($user->role))
 
 @section('content')
 <div class="container-fluid py-4">
+    <!-- Alert Messages -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -11,25 +26,46 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h2 class="mb-1">Welcome back, {{ auth()->user()->name }}! 👋</h2>
-                            <p class="mb-0 opacity-75">
-                                @if(auth()->user()->isStudent())
-                                    Ready to continue your learning journey?
-                                @elseif(auth()->user()->isTeacher())
-                                    Ready to inspire students today?
-                                @elseif(auth()->user()->isInstitute())
-                                    Manage your institute efficiently.
-                                @elseif(auth()->user()->isAdmin())
-                                    Monitor and manage the platform.
-                                @else
-                                    Welcome to your dashboard!
-                                @endif
-                            </p>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('images/default-avatar.png') }}" 
+                                         alt="Profile" 
+                                         class="rounded-circle border border-2 border-white" 
+                                         width="60" height="60">
+                                </div>
+                                <div>
+                                    <h2 class="mb-1">Welcome back, {{ $user->name }}! 👋</h2>
+                                    <p class="mb-0 opacity-75">
+                                        @if($user->role === 'student')
+                                            Ready to continue your learning journey?
+                                        @elseif($user->role === 'teacher')
+                                            Ready to inspire students today?
+                                        @elseif($user->role === 'institute')
+                                            Manage your institute efficiently.
+                                        @elseif($user->role === 'admin')
+                                            Monitor and manage the platform.
+                                        @else
+                                            Welcome to your dashboard!
+                                        @endif
+                                    </p>
+                                    @if(isset($dashboardData['needs_profile_setup']) && $dashboardData['needs_profile_setup'])
+                                        <small class="text-warning">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                            Please complete your profile to access full features
+                                        </small>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-4 text-end">
-                            <div class="badge bg-light text-dark fs-6 px-3 py-2">
+                            <div class="badge bg-light text-dark fs-6 px-3 py-2 mb-2">
                                 <i class="bi bi-person-badge me-1"></i>
-                                {{ ucfirst(auth()->user()->role) }}
+                                {{ ucfirst($user->role) }}
+                            </div>
+                            <div class="d-block">
+                                <a href="{{ route('dashboard.profile') }}" class="btn btn-light btn-sm me-2">
+                                    <i class="bi bi-person-gear me-1"></i>Edit Profile
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -38,290 +74,37 @@
         </div>
     </div>
 
+    <!-- Profile Setup Alert -->
+    @if(isset($dashboardData['needs_profile_setup']) && $dashboardData['needs_profile_setup'])
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    <h5 class="alert-heading">
+                        <i class="bi bi-info-circle me-2"></i>Complete Your Profile
+                    </h5>
+                    <p class="mb-3">To get the most out of our platform, please complete your {{ $user->role }} profile.</p>
+                    <a href="{{ route('dashboard.profile') }}" class="btn btn-warning">
+                        <i class="bi bi-person-plus me-1"></i>Complete Profile Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Quick Stats -->
-    <div class="row mb-4">
-        @if(auth()->user()->isStudent() || auth()->user()->role === 'parent')
-            <!-- Student/Parent Stats -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-book text-primary fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Active Sessions</h6>
-                                <h4 class="mb-0 text-primary">3</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-person-check text-success fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Teachers Found</h6>
-                                <h4 class="mb-0 text-success">12</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-clock-history text-info fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Hours Learned</h6>
-                                <h4 class="mb-0 text-info">45</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-warning bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-star text-warning fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Avg Rating Given</h6>
-                                <h4 class="mb-0 text-warning">4.8</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @elseif(auth()->user()->isTeacher())
-            <!-- Teacher Stats -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-people text-primary fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Total Students</h6>
-                                <h4 class="mb-0 text-primary">28</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-clock text-success fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Hours Taught</h6>
-                                <h4 class="mb-0 text-success">156</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-currency-dollar text-info fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Monthly Earnings</h6>
-                                <h4 class="mb-0 text-info">$2,340</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-warning bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-star-fill text-warning fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Rating</h6>
-                                <h4 class="mb-0 text-warning">4.9</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @elseif(auth()->user()->isInstitute())
-            <!-- Institute Stats -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-person-badge text-primary fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Total Teachers</h6>
-                                <h4 class="mb-0 text-primary">45</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-people text-success fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Total Students</h6>
-                                <h4 class="mb-0 text-success">1,245</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-book text-info fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Active Courses</h6>
-                                <h4 class="mb-0 text-info">23</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-warning bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-star-fill text-warning fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Rating</h6>
-                                <h4 class="mb-0 text-warning">4.7</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @elseif(auth()->user()->isAdmin())
-            <!-- Admin Stats -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-people text-primary fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Total Users</h6>
-                                <h4 class="mb-0 text-primary">2,847</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-person-check text-success fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Active Teachers</h6>
-                                <h4 class="mb-0 text-success">189</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-building text-info fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Institutes</h6>
-                                <h4 class="mb-0 text-info">67</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <div class="bg-warning bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-0">Pending Reviews</h6>
-                                <h4 class="mb-0 text-warning">15</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </div>
+    @if(!isset($dashboardData['needs_profile_setup']) || !$dashboardData['needs_profile_setup'])
+        <div class="row mb-4">
+            @if($user->role === 'admin')
+                @include('dashboard.partials.admin-stats', ['stats' => $dashboardData['stats']])
+            @elseif($user->role === 'teacher')
+                @include('dashboard.partials.teacher-stats', ['stats' => $dashboardData['stats']])
+            @elseif($user->role === 'institute')
+                @include('dashboard.partials.institute-stats', ['stats' => $dashboardData['stats']])
+            @else
+                @include('dashboard.partials.student-stats', ['stats' => $dashboardData['stats']])
+            @endif
+        </div>
+    @endif
 
     <!-- Main Content Row -->
     <div class="row">
