@@ -24,6 +24,12 @@ class User extends Authenticatable
         'role',
         'phone',
         'address',
+        'city',
+        'state',
+        'pincode',
+        'country',
+        'latitude',
+        'longitude',
         'profile_image',
         'is_active',
         'preferences',
@@ -51,6 +57,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'preferences' => 'array',
             'is_active' => 'boolean',
+            'latitude' => 'decimal:8',
+            'longitude' => 'decimal:8',
         ];
     }
 
@@ -68,6 +76,14 @@ class User extends Authenticatable
     public function institute()
     {
         return $this->hasOne(Institute::class);
+    }
+
+    /**
+     * Get the student profile associated with the user
+     */
+    public function studentProfile()
+    {
+        return $this->hasOne(StudentProfile::class);
     }
 
     /**

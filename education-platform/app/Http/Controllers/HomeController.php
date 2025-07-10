@@ -221,7 +221,7 @@ class HomeController extends Controller
                                    return [
                                        'type' => 'institute',
                                        'title' => $institute->name,
-                                       'subtitle' => $institute->city . ', ' . $institute->state,
+                                       'subtitle' => ($institute->city ?? 'Unknown City') . ', ' . ($institute->state ?? 'Unknown State'),
                                        'url' => route('institutes.show', $institute->slug),
                                        'avatar' => $institute->logo,
                                    ];

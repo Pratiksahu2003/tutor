@@ -34,6 +34,18 @@ class TeacherProfile extends Model
         'branch_permissions',
         'branch_notes',
         'branch_joined_date',
+        // Location fields
+        'teaching_city',
+        'teaching_state',
+        'teaching_pincode',
+        'teaching_area',
+        'teaching_latitude',
+        'teaching_longitude',
+        'travel_radius_km',
+        'preferred_areas',
+        'home_tuition',
+        'institute_classes',
+        'online_classes',
     ];
 
     protected $casts = [
@@ -46,6 +58,13 @@ class TeacherProfile extends Model
         'is_branch_verified' => 'boolean',
         'branch_permissions' => 'array',
         'branch_joined_date' => 'datetime',
+        'teaching_latitude' => 'decimal:8',
+        'teaching_longitude' => 'decimal:8',
+        'travel_radius_km' => 'decimal:2',
+        'preferred_areas' => 'array',
+        'home_tuition' => 'boolean',
+        'institute_classes' => 'boolean',
+        'online_classes' => 'boolean',
     ];
 
     /**

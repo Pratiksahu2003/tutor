@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\StudentProfile;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -57,12 +58,12 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'phone' => $request->phone,
-            'address' => $request->city . ($request->state ? ', ' . $request->state : ''),
+            'city' => $request->city,
+            'state' => $request->state,
+            'address' => null, // Will be set based on institute address if institute
             'is_active' => true,
             'preferences' => [
                 'date_of_birth' => $request->date_of_birth,
-                'city' => $request->city,
-                'state' => $request->state,
                 'grade_level' => $request->grade_level,
                 'learning_goals' => $request->learning_goals,
                 'children_count' => $request->children_count,
@@ -150,8 +151,18 @@ class RegisteredUserController extends Controller
      */
     private function createStudentProfile($user, $request)
     {
-        // Students don't need a separate profile table for now
-        // Their preferences are stored in the users table
+        $user->studentProfile()->create([
+            'date_of_birth' => $request->date_of_birth,
+            'gender' => $request->gender,
+            'current_class' => $request->grade_level,
+            'city' => $request->city,
+            'state' => $request->state,
+            'learning_goals' => $request->learning_goals ? [$request->learning_goals] : null,
+            'preferred_learning_mode' => 'both',
+            'urgency' => 'flexible',
+            'is_active' => true,
+            'profile_completed' => false,
+        ]);
     }
 
     /**

@@ -218,8 +218,7 @@ class SearchController extends Controller
     public function subjects(Request $request)
     {
         $subjects = Subject::where('is_active', true)
-            ->withCount(['teachers', 'institutes'])
-            ->orderByDesc('teachers_count')
+            ->orderBy('name')
             ->paginate(24);
         
         return view('search.subjects', [
@@ -267,22 +266,11 @@ class SearchController extends Controller
                 ->with('error', 'Location coordinates required for nearby search.');
         }
         
-        // Use Haversine formula for distance calculation
-        $teachers = TeacherProfile::selectRaw("
-                *, (
-                    6371 * acos(
-                        cos(radians(?)) * cos(radians(latitude)) * 
-                        cos(radians(longitude) - radians(?)) + 
-                        sin(radians(?)) * sin(radians(latitude))
-                    )
-                ) AS distance
-            ", [$latitude, $longitude, $latitude])
-            ->where('verified', true)
+        // For SQLite compatibility, we'll use a simpler approach
+        $teachers = TeacherProfile::where('verified', true)
             ->where('is_active', true)
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->having('distance', '<', $radius)
-            ->orderBy('distance')
             ->with(['user', 'subjects', 'institute'])
             ->paginate(12);
         
@@ -566,8 +554,7 @@ class SearchController extends Controller
         return Cache::remember('teacher_filter_options', 3600, function () {
             return [
                 'subjects' => Subject::where('is_active', true)
-                    ->withCount('teachers')
-                    ->having('teachers_count', '>', 0)
+                    ->whereHas('teachers')
                     ->orderBy('name')
                     ->get(),
                 'cities' => $this->getPopularCities(),
@@ -649,11 +636,16 @@ class SearchController extends Controller
     
     private function getRelatedInstitutes($institute)
     {
-        return Institute::where('id', '!=', $institute->id)
+        $query = Institute::where('id', '!=', $institute->id)
             ->where('verified', true)
-            ->where('is_active', true)
-            ->where('city', $institute->city)
-            ->with(['user', 'subjects'])
+            ->where('is_active', true);
+        
+        // Only filter by city if it exists
+        if (!empty($institute->city)) {
+            $query->where('city', $institute->city);
+        }
+        
+        return $query->with(['user', 'subjects'])
             ->orderBy('rating', 'desc')
             ->take(4)
             ->get();
