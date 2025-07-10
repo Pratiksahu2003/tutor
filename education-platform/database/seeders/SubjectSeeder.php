@@ -1,0 +1,311 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use App\Models\Subject;
+
+class SubjectSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $subjects = [
+            // Core Academic Subjects
+            [
+                'name' => 'Mathematics',
+                'slug' => 'mathematics',
+                'short_name' => 'Math',
+                'description' => 'Advanced mathematics including algebra, calculus, geometry, and statistics.',
+                'category' => 'mathematics',
+                'level' => 'competitive',
+                'icon' => 'calculator',
+                'color' => '#007bff',
+                'sort_order' => 1,
+            ],
+            [
+                'name' => 'Physics',
+                'slug' => 'physics',
+                'short_name' => 'Phy',
+                'description' => 'Physics covering mechanics, thermodynamics, optics, and modern physics.',
+                'category' => 'science',
+                'level' => 'competitive',
+                'icon' => 'atom',
+                'color' => '#28a745',
+                'sort_order' => 2,
+            ],
+            [
+                'name' => 'Chemistry',
+                'slug' => 'chemistry',
+                'short_name' => 'Chem',
+                'description' => 'Organic, inorganic, and physical chemistry for competitive examinations.',
+                'category' => 'science',
+                'level' => 'competitive',
+                'icon' => 'flask',
+                'color' => '#dc3545',
+                'sort_order' => 3,
+            ],
+            [
+                'name' => 'Biology',
+                'slug' => 'biology',
+                'short_name' => 'Bio',
+                'description' => 'Biology including botany, zoology, and human physiology.',
+                'category' => 'science',
+                'level' => 'competitive',
+                'icon' => 'leaf',
+                'color' => '#198754',
+                'sort_order' => 4,
+            ],
+            [
+                'name' => 'English Language',
+                'slug' => 'english-language',
+                'short_name' => 'English',
+                'description' => 'English grammar, vocabulary, comprehension, and writing skills.',
+                'category' => 'language',
+                'level' => 'competitive',
+                'icon' => 'book-open',
+                'color' => '#6f42c1',
+                'sort_order' => 5,
+            ],
+            [
+                'name' => 'Hindi Language',
+                'slug' => 'hindi-language',
+                'short_name' => 'Hindi',
+                'description' => 'Hindi grammar, literature, and comprehension.',
+                'category' => 'language',
+                'level' => 'competitive',
+                'icon' => 'book',
+                'color' => '#fd7e14',
+                'sort_order' => 6,
+            ],
+
+            // Competitive Exam Specific Subjects
+            [
+                'name' => 'General Knowledge',
+                'slug' => 'general-knowledge',
+                'short_name' => 'GK',
+                'description' => 'General knowledge covering history, geography, science, and current affairs.',
+                'category' => 'general_knowledge',
+                'level' => 'competitive',
+                'icon' => 'globe',
+                'color' => '#20c997',
+                'sort_order' => 7,
+            ],
+            [
+                'name' => 'Current Affairs',
+                'slug' => 'current-affairs',
+                'short_name' => 'CA',
+                'description' => 'Latest current affairs, news, and developments.',
+                'category' => 'current_affairs',
+                'level' => 'competitive',
+                'icon' => 'newspaper',
+                'color' => '#e83e8c',
+                'sort_order' => 8,
+            ],
+            [
+                'name' => 'Logical Reasoning',
+                'slug' => 'logical-reasoning',
+                'short_name' => 'LR',
+                'description' => 'Logical reasoning including puzzles, coding-decoding, and analytical reasoning.',
+                'category' => 'reasoning',
+                'level' => 'competitive',
+                'icon' => 'brain',
+                'color' => '#6610f2',
+                'sort_order' => 9,
+            ],
+            [
+                'name' => 'Quantitative Aptitude',
+                'slug' => 'quantitative-aptitude',
+                'short_name' => 'QA',
+                'description' => 'Quantitative aptitude covering arithmetic, algebra, and data interpretation.',
+                'category' => 'quantitative_aptitude',
+                'level' => 'competitive',
+                'icon' => 'chart-bar',
+                'color' => '#ffc107',
+                'sort_order' => 10,
+            ],
+
+            // Subject-wise Specializations
+            [
+                'name' => 'Computer Science',
+                'slug' => 'computer-science',
+                'short_name' => 'CS',
+                'description' => 'Computer science including programming, data structures, and algorithms.',
+                'category' => 'computer_science',
+                'level' => 'competitive',
+                'icon' => 'laptop-code',
+                'color' => '#0dcaf0',
+                'sort_order' => 11,
+            ],
+            [
+                'name' => 'Economics',
+                'slug' => 'economics',
+                'short_name' => 'Eco',
+                'description' => 'Micro and macro economics for competitive examinations.',
+                'category' => 'social_science',
+                'level' => 'competitive',
+                'icon' => 'chart-line',
+                'color' => '#17a2b8',
+                'sort_order' => 12,
+            ],
+            [
+                'name' => 'Political Science',
+                'slug' => 'political-science',
+                'short_name' => 'Pol',
+                'description' => 'Political science covering Indian polity and international relations.',
+                'category' => 'social_science',
+                'level' => 'competitive',
+                'icon' => 'landmark',
+                'color' => '#6c757d',
+                'sort_order' => 13,
+            ],
+            [
+                'name' => 'History',
+                'slug' => 'history',
+                'short_name' => 'His',
+                'description' => 'Ancient, medieval, and modern history of India and world.',
+                'category' => 'social_science',
+                'level' => 'competitive',
+                'icon' => 'monument',
+                'color' => '#795548',
+                'sort_order' => 14,
+            ],
+            [
+                'name' => 'Geography',
+                'slug' => 'geography',
+                'short_name' => 'Geo',
+                'description' => 'Physical and human geography covering Indian and world geography.',
+                'category' => 'social_science',
+                'level' => 'competitive',
+                'icon' => 'map',
+                'color' => '#607d8b',
+                'sort_order' => 15,
+            ],
+
+            // Professional Course Subjects
+            [
+                'name' => 'Accountancy',
+                'slug' => 'accountancy',
+                'short_name' => 'Acc',
+                'description' => 'Financial accounting, cost accounting, and auditing.',
+                'category' => 'commerce',
+                'level' => 'competitive',
+                'icon' => 'calculator',
+                'color' => '#4caf50',
+                'sort_order' => 16,
+            ],
+            [
+                'name' => 'Business Studies',
+                'slug' => 'business-studies',
+                'short_name' => 'BS',
+                'description' => 'Business management, entrepreneurship, and organizational behavior.',
+                'category' => 'management',
+                'level' => 'competitive',
+                'icon' => 'briefcase',
+                'color' => '#ff9800',
+                'sort_order' => 17,
+            ],
+            [
+                'name' => 'Law',
+                'slug' => 'law',
+                'short_name' => 'Law',
+                'description' => 'Constitutional law, criminal law, and civil law.',
+                'category' => 'law',
+                'level' => 'competitive',
+                'icon' => 'balance-scale',
+                'color' => '#9c27b0',
+                'sort_order' => 18,
+            ],
+
+            // Engineering Subjects
+            [
+                'name' => 'Mechanical Engineering',
+                'slug' => 'mechanical-engineering',
+                'short_name' => 'ME',
+                'description' => 'Thermodynamics, fluid mechanics, and machine design.',
+                'category' => 'engineering',
+                'level' => 'competitive',
+                'icon' => 'cog',
+                'color' => '#3f51b5',
+                'sort_order' => 19,
+            ],
+            [
+                'name' => 'Electrical Engineering',
+                'slug' => 'electrical-engineering',
+                'short_name' => 'EE',
+                'description' => 'Circuit analysis, power systems, and control systems.',
+                'category' => 'engineering',
+                'level' => 'competitive',
+                'icon' => 'bolt',
+                'color' => '#ffeb3b',
+                'sort_order' => 20,
+            ],
+            [
+                'name' => 'Civil Engineering',
+                'slug' => 'civil-engineering',
+                'short_name' => 'CE',
+                'description' => 'Structural engineering, environmental engineering, and surveying.',
+                'category' => 'engineering',
+                'level' => 'competitive',
+                'icon' => 'building',
+                'color' => '#8bc34a',
+                'sort_order' => 21,
+            ],
+
+            // Medical Subjects
+            [
+                'name' => 'Anatomy',
+                'slug' => 'anatomy',
+                'short_name' => 'Ana',
+                'description' => 'Human anatomy and physiological systems.',
+                'category' => 'medical',
+                'level' => 'competitive',
+                'icon' => 'user-md',
+                'color' => '#e91e63',
+                'sort_order' => 22,
+            ],
+            [
+                'name' => 'Physiology',
+                'slug' => 'physiology',
+                'short_name' => 'Phy',
+                'description' => 'Human physiology and biochemistry.',
+                'category' => 'medical',
+                'level' => 'competitive',
+                'icon' => 'heartbeat',
+                'color' => '#f44336',
+                'sort_order' => 23,
+            ],
+
+            // School Level Subjects
+            [
+                'name' => 'Sanskrit',
+                'slug' => 'sanskrit',
+                'short_name' => 'San',
+                'description' => 'Sanskrit language and literature.',
+                'category' => 'language',
+                'level' => 'secondary',
+                'icon' => 'om',
+                'color' => '#ff5722',
+                'sort_order' => 24,
+            ],
+            [
+                'name' => 'Social Science',
+                'slug' => 'social-science',
+                'short_name' => 'SST',
+                'description' => 'Combined social studies for school level.',
+                'category' => 'social_science',
+                'level' => 'secondary',
+                'icon' => 'users',
+                'color' => '#795548',
+                'sort_order' => 25,
+            ],
+        ];
+
+        foreach ($subjects as $subject) {
+            Subject::create($subject);
+        }
+    }
+}

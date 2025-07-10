@@ -1,0 +1,187 @@
+/* ==============================================
+   DASHBOARD SPECIFIC STYLES
+   ============================================== */
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Statistics cards animations */
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.02);
+}
+
+/* Activity feed */
+.activity-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    margin: 0 -0.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+/* Quick action buttons */
+.quick-action-btn {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.quick-action-btn:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateY(-2px);
+    color: #667eea;
+    text-decoration: none;
+}
+
+.quick-action-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    outline: none;
+}
+
+/* Lead table enhancements */
+.recent-leads-container .table td {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.recent-leads-container .table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.02);
+}
+
+/* Chart period toggle buttons */
+.btn-group .btn-check:checked + .btn-outline-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.btn-group .btn-outline-primary {
+    border-color: #e3e6f0;
+    color: #6c757d;
+}
+
+.btn-group .btn-outline-primary:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Loading state for dashboard cards */
+.dashboard-loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.dashboard-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 10;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments for dashboard */
+@media (max-width: 992px) {
+    .chart-container {
+        height: 250px;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+    
+    .quick-action-btn {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .activity-item {
+        padding: 1rem 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-value {
+        font-size: 1.75rem;
+    }
+    
+    .chart-container {
+        height: 180px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: 6px !important;
+        margin-bottom: 0.25rem;
+    }
+} 
