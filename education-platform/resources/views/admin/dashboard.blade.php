@@ -146,19 +146,19 @@
                 <div class="mb-3">
                     <div class="d-flex justify-content-between">
                         <span>Verified Teachers</span>
-                        <span class="badge bg-success">{{ \App\Models\TeacherProfile::where('verified', true)->count() }}</span>
+                        <span class="badge bg-success">{{ \App\Models\TeacherProfile::where('verification_status', 'verified')->count() }}</span>
                     </div>
                 </div>
                 <div class="mb-3">
                     <div class="d-flex justify-content-between">
                         <span>Pending Teachers</span>
-                        <span class="badge bg-warning">{{ \App\Models\TeacherProfile::where('verified', false)->count() }}</span>
+                        <span class="badge bg-warning">{{ \App\Models\TeacherProfile::where('verification_status', 'unverified')->count() }}</span>
                     </div>
                 </div>
                 <div class="mb-3">
                     <div class="d-flex justify-content-between">
                         <span>Verified Institutes</span>
-                        <span class="badge bg-success">{{ \App\Models\Institute::where('verified', true)->count() }}</span>
+                        <span class="badge bg-success">{{ \App\Models\Institute::where('verification_status', 'verified')->count() }}</span>
                     </div>
                 </div>
                 <div class="mb-2">

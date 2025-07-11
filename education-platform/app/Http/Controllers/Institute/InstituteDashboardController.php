@@ -35,7 +35,7 @@ class InstituteDashboardController extends Controller
             'profile_completion' => $this->calculateProfileCompletion($institute),
             'total_teachers' => $institute->total_teachers,
             'verified_teachers' => $institute->verified_teachers_count,
-            'pending_teachers' => $institute->teachers()->where('is_institute_verified', false)->count(),
+            'pending_teachers' => $institute->teachers()->where('verification_status', 'pending')->count(),
             'total_subjects' => $institute->teacherSubjects()->count(),
             'verification_status' => $institute->verified,
             'rating' => $institute->rating,
@@ -208,8 +208,7 @@ class InstituteDashboardController extends Controller
             'qualification' => $validated['qualification'],
             'experience_years' => $validated['experience_years'],
             'specialization' => $validated['specialization'],
-            'employment_type' => 'institute',
-            'is_institute_verified' => true, // Auto-verified since added by institute
+            'verification_status' => 'verified', // Auto-verified since added by institute
             'verified' => false, // Admin verification still pending
         ]);
 

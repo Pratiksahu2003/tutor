@@ -14,6 +14,70 @@ use Illuminate\Support\Facades\Auth;
 class SearchController extends Controller
 {
     /**
+     * Calculate distance between two points using Haversine formula
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Earth's radius in kilometers
+        
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lonDelta = deg2rad($lon2 - $lon1);
+        
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($lonDelta / 2) * sin($lonDelta / 2);
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        
+        return $earthRadius * $c;
+    }
+
+    /**
+     * Ensure all commonly used keys are present in teacher data
+     */
+    private function ensureTeacherKeys($teacher)
+    {
+        return array_merge([
+            'id' => 0,
+            'type' => 'teacher',
+            'name' => 'Unknown',
+            'title' => 'Teacher',
+            'location' => '',
+            'rating' => 4.0,
+            'experience' => 0,
+            'hourly_rate' => 0,
+            'avatar' => '',
+            'url' => '',
+            'total_reviews' => 0,
+            'total_students' => 0,
+            'students_count' => 0,
+            'slug' => '',
+        ], $teacher);
+    }
+
+    /**
+     * Ensure all commonly used keys are present in institute data
+     */
+    private function ensureInstituteKeys($institute)
+    {
+        return array_merge([
+            'id' => 0,
+            'type' => 'institute',
+            'name' => 'Unknown Institute',
+            'title' => 'Institute',
+            'location' => '',
+            'rating' => 4.0,
+            'total_students' => 0,
+            'students_count' => 0,
+            'established_year' => null,
+            'logo' => '',
+            'url' => '',
+            'total_reviews' => 0,
+            'slug' => '',
+        ], $institute);
+    }
+
+    /**
      * Display the main search page
      */
     public function index(Request $request)
@@ -48,7 +112,7 @@ class SearchController extends Controller
                     ->take(6)
                     ->get()
                     ->map(function($teacher) {
-                        return [
+                        $teacherData = [
                             'id' => $teacher->id,
                             'type' => 'teacher',
                             'name' => $teacher->user->name ?? 'Unknown',
@@ -56,10 +120,16 @@ class SearchController extends Controller
                             'location' => trim(($teacher->city ?? '') . ', ' . ($teacher->state ?? ''), ', '),
                             'rating' => $teacher->rating ?? 4.0,
                             'experience' => $teacher->experience_years ?? 0,
-                            'hourly_rate' => $teacher->hourly_rate,
+                            'hourly_rate' => $teacher->hourly_rate ?? 0,
                             'avatar' => $teacher->avatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($teacher->user->name ?? 'Teacher') . '&size=200&background=random',
                             'url' => route('teachers.show', $teacher->slug ?: 'teacher-' . $teacher->id),
+                            'total_reviews' => $teacher->reviews->count() ?? 0,
+                            'total_students' => $teacher->total_students ?? 0,
+                            'students_count' => $teacher->total_students ?? 0,
+                            'slug' => $teacher->slug ?: 'teacher-' . $teacher->id,
                         ];
+                        
+                        return $this->ensureTeacherKeys($teacherData);
                     });
             }
             
@@ -81,7 +151,7 @@ class SearchController extends Controller
                     ->take(6)
                     ->get()
                     ->map(function($institute) {
-                        return [
+                        $instituteData = [
                             'id' => $institute->id,
                             'type' => 'institute',
                             'name' => $institute->institute_name,
@@ -89,10 +159,15 @@ class SearchController extends Controller
                             'location' => trim(($institute->city ?? '') . ', ' . ($institute->state ?? ''), ', '),
                             'rating' => $institute->rating ?? 4.0,
                             'total_students' => $institute->total_students ?? 0,
+                            'students_count' => $institute->total_students ?? 0,
                             'established_year' => $institute->established_year,
                             'logo' => $institute->logo ?: 'https://ui-avatars.com/api/?name=' . urlencode($institute->institute_name) . '&size=200&background=random',
                             'url' => route('institutes.show', $institute->slug ?: 'institute-' . $institute->id),
+                            'total_reviews' => $institute->reviews->count() ?? 0,
+                            'slug' => $institute->slug ?: 'institute-' . $institute->id,
                         ];
+                        
+                        return $this->ensureInstituteKeys($instituteData);
                     });
             }
             
@@ -134,8 +209,10 @@ class SearchController extends Controller
     
     public function teachers(Request $request)
     {
-        $query = TeacherProfile::where('verified', true)
-            ->where('is_active', true)
+        $query = TeacherProfile::where('verification_status', 'verified')
+            ->whereHas('user', function($q) {
+                $q->where('is_active', true);
+            })
             ->with(['user', 'subjects', 'institute']);
         
         // Apply filters
@@ -166,8 +243,7 @@ class SearchController extends Controller
     {
         $teacher = TeacherProfile::where('slug', $slug)
             ->orWhere('id', $slug)
-            ->where('verified', true)
-            ->where('is_active', true)
+            ->where('verification_status', 'verified')
             ->with(['user', 'subjects', 'institute', 'reviews'])
             ->firstOrFail();
         
@@ -187,8 +263,7 @@ class SearchController extends Controller
     {
         $subject = Subject::where('slug', $slug)->firstOrFail();
         
-        $query = TeacherProfile::where('verified', true)
-            ->where('is_active', true)
+        $query = TeacherProfile::where('verification_status', 'verified')
             ->whereHas('subjects', function($q) use ($subject) {
                 $q->where('subjects.id', $subject->id);
             })
@@ -198,7 +273,7 @@ class SearchController extends Controller
         
         $teachers = $query->paginate(12);
         
-        return view('search.teachers-by-subject', [
+        return view('search.teachers', [
             'teachers' => $teachers,
             'subject' => $subject,
             'totalResults' => $teachers->total(),
@@ -207,7 +282,7 @@ class SearchController extends Controller
     
     public function teachersByCity($city)
     {
-        $query = TeacherProfile::where('verified', true)
+        $query = TeacherProfile::where('verification_status', 'verified')
             ->where('is_active', true)
             ->whereHas('user', function($q) use ($city) {
                 $q->where('city', 'like', "%{$city}%");
@@ -231,8 +306,7 @@ class SearchController extends Controller
     
     public function institutes(Request $request)
     {
-        $query = Institute::where('verified', true)
-            ->where('is_active', true)
+        $query = Institute::where('verification_status', 'verified')
             ->with(['user', 'subjects', 'teachers']);
         
         // Apply filters
@@ -263,27 +337,18 @@ class SearchController extends Controller
     {
         $institute = Institute::where('slug', $slug)
             ->orWhere('id', $slug)
-            ->where('verified', true)
-            ->where('is_active', true)
+            ->where('verification_status', 'verified')
             ->with(['user', 'subjects', 'teachers.user', 'reviews', 'branches'])
             ->firstOrFail();
         
         // Increment view count
         $institute->increment('profile_views');
         
-        // Get institute teachers
-        $teachers = $institute->teachers()
-            ->where('verified', true)
-            ->where('is_active', true)
-            ->with(['user', 'subjects'])
-            ->paginate(8);
-        
         // Get related institutes
         $relatedInstitutes = $this->getRelatedInstitutes($institute);
         
         return view('search.institute-profile', [
             'institute' => $institute,
-            'teachers' => $teachers,
             'relatedInstitutes' => $relatedInstitutes,
         ]);
     }
@@ -292,12 +357,12 @@ class SearchController extends Controller
     {
         $institute = Institute::where('slug', $slug)
             ->orWhere('id', $slug)
-            ->where('verified', true)
+            ->where('verification_status', 'verified')
             ->where('is_active', true)
             ->firstOrFail();
         
         $teachers = $institute->teachers()
-            ->where('verified', true)
+            ->where('verification_status', 'verified')
             ->where('is_active', true)
             ->with(['user', 'subjects'])
             ->paginate(12);
@@ -310,8 +375,7 @@ class SearchController extends Controller
     
     public function institutesByCity($city)
     {
-        $query = Institute::where('verified', true)
-            ->where('is_active', true)
+        $query = Institute::where('verification_status', 'verified')
             ->where('city', 'like', "%{$city}%")
             ->with(['user', 'subjects', 'teachers']);
         
@@ -319,7 +383,7 @@ class SearchController extends Controller
         
         $institutes = $query->paginate(12);
         
-        return view('search.institutes-by-city', [
+        return view('search.institutes', [
             'institutes' => $institutes,
             'city' => $city,
             'totalResults' => $institutes->total(),
@@ -343,57 +407,65 @@ class SearchController extends Controller
     
     public function advanced(Request $request)
     {
-        $teacherQuery = TeacherProfile::where('verified', true)
-            ->where('is_active', true)
+        $teacherQuery = TeacherProfile::where('verification_status', 'verified')
             ->with(['user', 'subjects', 'institute']);
         
-        $instituteQuery = Institute::where('verified', true)
-            ->where('is_active', true)
+        $instituteQuery = Institute::where('verification_status', 'verified')
             ->with(['user', 'subjects', 'teachers']);
         
         // Apply advanced filters
         $this->applyAdvancedFilters($teacherQuery, $instituteQuery, $request);
         
-        $teachers = $teacherQuery->take(6)->get();
-        $institutes = $instituteQuery->take(6)->get();
+        $teachers = $teacherQuery->paginate(6);
+        $institutes = $instituteQuery->paginate(6);
         
         return view('search.advanced', [
             'teachers' => $teachers,
             'institutes' => $institutes,
-            'currentFilters' => $request->all(),
-            'filterOptions' => [
+            'filters' => [
                 'subjects' => Subject::where('is_active', true)->get(),
                 'cities' => $this->getPopularCities(),
-                'experience_levels' => ['0-2 years', '2-5 years', '5-10 years', '10+ years'],
-                'teaching_modes' => ['online', 'offline', 'both'],
             ],
+            'currentFilters' => $request->all(),
         ]);
     }
     
     public function nearby(Request $request)
     {
-        $latitude = $request->get('lat');
-        $longitude = $request->get('lng');
-        $radius = $request->get('radius', 10); // km
+        $latitude = $request->get('latitude');
+        $longitude = $request->get('longitude');
+        $radius = $request->get('radius', 10); // Default 10km
         
         if (!$latitude || !$longitude) {
-            return redirect()->route('search.teachers')
-                ->with('error', 'Location coordinates required for nearby search.');
+            return response()->json(['error' => 'Location coordinates required'], 400);
         }
         
         // For SQLite compatibility, we'll use a simpler approach
-        $teachers = TeacherProfile::where('verified', true)
-            ->where('is_active', true)
+        $teachers = TeacherProfile::where('verification_status', 'verified')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->with(['user', 'subjects', 'institute'])
-            ->paginate(12);
+            ->get()
+            ->filter(function($teacher) use ($latitude, $longitude, $radius) {
+                $distance = $this->calculateDistance($latitude, $longitude, $teacher->latitude, $teacher->longitude);
+                return $distance <= $radius;
+            })
+            ->take(10);
         
-        return view('search.nearby', [
+        $institutes = Institute::where('verification_status', 'verified')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->with(['user', 'subjects', 'teachers'])
+            ->get()
+            ->filter(function($institute) use ($latitude, $longitude, $radius) {
+                $distance = $this->calculateDistance($latitude, $longitude, $institute->latitude, $institute->longitude);
+                return $distance <= $radius;
+            })
+            ->take(10);
+        
+        return response()->json([
             'teachers' => $teachers,
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'radius' => $radius,
+            'institutes' => $institutes,
         ]);
     }
     
@@ -490,7 +562,7 @@ class SearchController extends Controller
         
         // Verified only
         if ($request->filled('verified_only')) {
-            $query->where('verified', true);
+            $query->where('verification_status', 'verified');
         }
     }
     
@@ -738,8 +810,7 @@ class SearchController extends Controller
         $subjectIds = $teacher->subjects->pluck('id');
         
         return TeacherProfile::where('id', '!=', $teacher->id)
-            ->where('verified', true)
-            ->where('is_active', true)
+            ->where('verification_status', 'verified')
             ->whereHas('subjects', function($q) use ($subjectIds) {
                 $q->whereIn('subjects.id', $subjectIds);
             })
@@ -752,7 +823,7 @@ class SearchController extends Controller
     private function getRelatedInstitutes($institute)
     {
         $query = Institute::where('id', '!=', $institute->id)
-            ->where('verified', true)
+            ->where('verification_status', 'verified')
             ->where('is_active', true);
         
         // Only filter by city if it exists
@@ -781,7 +852,7 @@ class SearchController extends Controller
         $teachers = TeacherProfile::whereHas('user', function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%");
             })
-            ->where('verified', true)
+            ->where('verification_status', 'verified')
             ->take(5)
             ->with('user')
             ->get();
@@ -797,7 +868,7 @@ class SearchController extends Controller
         
         // Institute suggestions
         $institutes = Institute::where('institute_name', 'like', "%{$query}%")
-            ->where('verified', true)
+            ->where('verification_status', 'verified')
             ->take(5)
             ->get();
         

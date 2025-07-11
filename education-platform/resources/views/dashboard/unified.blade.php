@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Modern Dashboard - ' . ucfirst($user->role))
+@section('title', 'Unified Dashboard - ' . ucfirst($user->role))
 @section('page-title', 'Dashboard Overview')
 
 @section('content')
@@ -23,7 +23,7 @@
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="modern-card bg-gradient-primary text-white">
+            <div class="unified-card bg-gradient-primary text-white">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-lg-8">
@@ -78,7 +78,7 @@
     @if(isset($dashboardData['needs_profile_setup']) && $dashboardData['needs_profile_setup'])
         <div class="row mb-4">
             <div class="col-12">
-                <div class="modern-card border-start border-warning border-4">
+                <div class="unified-card border-start border-warning border-4">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-8">
@@ -103,13 +103,13 @@
     @if(!isset($dashboardData['needs_profile_setup']) || !$dashboardData['needs_profile_setup'])
         <div class="row mb-4">
             @if($user->role === 'admin')
-                @include('dashboard.partials.modern-admin-stats', ['stats' => $dashboardData['stats']])
+                @include('dashboard.partials.unified-admin-stats', ['stats' => $dashboardData['stats']])
             @elseif($user->role === 'teacher')
-                @include('dashboard.partials.modern-teacher-stats', ['stats' => $dashboardData['stats']])
+                @include('dashboard.partials.unified-teacher-stats', ['stats' => $dashboardData['stats']])
             @elseif($user->role === 'institute')
-                @include('dashboard.partials.modern-institute-stats', ['stats' => $dashboardData['stats']])
+                @include('dashboard.partials.unified-institute-stats', ['stats' => $dashboardData['stats']])
             @else
-                @include('dashboard.partials.modern-student-stats', ['stats' => $dashboardData['stats']])
+                @include('dashboard.partials.unified-student-stats', ['stats' => $dashboardData['stats']])
             @endif
         </div>
 
@@ -118,19 +118,19 @@
             <!-- Left Column - Main Content -->
             <div class="col-lg-8 mb-4">
                 @if($user->role === 'admin')
-                    @include('dashboard.partials.modern-admin-content', $dashboardData)
+                    @include('dashboard.partials.unified-admin-content', $dashboardData)
                 @elseif($user->role === 'teacher')
-                    @include('dashboard.partials.modern-teacher-content', $dashboardData)
+                    @include('dashboard.partials.unified-teacher-content', $dashboardData)
                 @elseif($user->role === 'institute')
-                    @include('dashboard.partials.modern-institute-content', $dashboardData)
+                    @include('dashboard.partials.unified-institute-content', $dashboardData)
                 @else
-                    @include('dashboard.partials.modern-student-content', $dashboardData)
+                    @include('dashboard.partials.unified-student-content', $dashboardData)
                 @endif
             </div>
 
             <!-- Right Column - Sidebar Content -->
             <div class="col-lg-4">
-                @include('dashboard.partials.modern-sidebar-widgets', ['user' => $user, 'dashboardData' => $dashboardData])
+                @include('dashboard.partials.unified-sidebar-widgets', ['user' => $user, 'dashboardData' => $dashboardData])
             </div>
         </div>
     @endif
@@ -150,24 +150,33 @@
                         <i class="bi bi-bookmark-plus me-2"></i>Book Session
                     </a></li>
                 @elseif($user->role === 'teacher')
-                    <li><a class="dropdown-item" href="#">
-                        <i class="bi bi-person-plus me-2"></i>Add Student
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                        <i class="bi bi-plus-circle me-2"></i>Add Subject
                     </a></li>
-                    <li><a class="dropdown-item" href="#">
-                        <i class="bi bi-calendar-plus me-2"></i>Schedule Class
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#scheduleSessionModal">
+                        <i class="bi bi-calendar-plus me-2"></i>Schedule Session
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#earningsReportModal">
+                        <i class="bi bi-graph-up me-2"></i>View Reports
                     </a></li>
                 @elseif($user->role === 'institute')
-                    <li><a class="dropdown-item" href="#">
-                        <i class="bi bi-person-badge me-2"></i>Add Teacher
-                    </a></li>
-                    <li><a class="dropdown-item" href="#">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addBranchModal">
                         <i class="bi bi-building me-2"></i>Add Branch
                     </a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+                        <i class="bi bi-person-badge me-2"></i>Add Teacher
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                        <i class="bi bi-book me-2"></i>Add Subject
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addExamTypeModal">
+                        <i class="bi bi-file-text me-2"></i>Add Exam Type
+                    </a></li>
                 @else
-                    <li><a class="dropdown-item" href="#">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
                         <i class="bi bi-people me-2"></i>Manage Users
                     </a></li>
-                    <li><a class="dropdown-item" href="#">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#systemSettingsModal">
                         <i class="bi bi-gear me-2"></i>System Settings
                     </a></li>
                 @endif
@@ -179,12 +188,38 @@
         </div>
     </div>
 </div>
+
+<!-- Role-Specific Modals -->
+@if($user->role === 'teacher')
+    @include('dashboard.modals.teacher-modals')
+@elseif($user->role === 'institute')
+    @include('dashboard.modals.institute-modals')
+@elseif($user->role === 'admin')
+    @include('dashboard.modals.admin-modals')
+@endif
+
 @endsection
 
 @push('styles')
 <style>
     .bg-gradient-primary {
         background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .unified-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .unified-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
 
     .stats-widget {
@@ -209,204 +244,296 @@
     }
 
     .stats-widget:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--card-shadow-lg);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
 
-    .stats-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 1rem;
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
+        color: white;
         margin-bottom: 1rem;
     }
 
-    .stats-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1;
-        margin-bottom: 0.5rem;
-    }
-
-    .stats-label {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        font-weight: 500;
-    }
-
-    .stats-change {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
+    .management-section {
+        background: white;
         border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        border: none;
+        margin-bottom: 1.5rem;
+    }
+
+    .management-section h5 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
         font-weight: 600;
     }
 
-    .stats-change.positive {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success-color);
+    .report-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        border: none;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
     }
 
-    .stats-change.negative {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger-color);
+    .report-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     }
 
     .chart-container {
         position: relative;
         height: 300px;
-        width: 100%;
-    }
-
-    .activity-timeline {
-        position: relative;
-        padding-left: 2rem;
-    }
-
-    .activity-timeline::before {
-        content: '';
-        position: absolute;
-        left: 0.75rem;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: var(--border-color);
+        margin: 1rem 0;
     }
 
     .activity-item {
-        position: relative;
-        padding-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
     }
 
-    .activity-item::before {
-        content: '';
-        position: absolute;
-        left: -1.75rem;
-        top: 0.25rem;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: var(--primary-color);
-        border: 3px solid white;
-        box-shadow: 0 0 0 2px var(--primary-color);
+    .activity-item:last-child {
+        border-bottom: none;
     }
 
-    .progress-circle {
-        width: 120px;
-        height: 120px;
+    .activity-icon {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
-        background: conic-gradient(var(--primary-color) 0deg, var(--primary-color) calc(var(--progress) * 3.6deg), var(--border-color) calc(var(--progress) * 3.6deg), var(--border-color) 360deg);
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
+        margin-right: 1rem;
+        font-size: 1rem;
+        color: white;
     }
 
-    .progress-circle::before {
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .quick-action-btn {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        margin: 0.25rem;
+    }
+
+    .quick-action-btn:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .period-toggle {
+        background: var(--light-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 0.25rem;
+        display: inline-flex;
+    }
+
+    .period-toggle .btn {
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .period-toggle .btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .period-toggle .btn:not(.active) {
+        background: transparent;
+        color: var(--text-color);
+    }
+
+    .period-toggle .btn:not(.active):hover {
+        background: var(--light-bg);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .unified-card {
+            padding: 1rem;
+        }
+
+        .stats-widget {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+        }
+
+        .management-section {
+            padding: 1rem;
+        }
+
+        .chart-container {
+            height: 250px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stat-number {
+            font-size: 1.25rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.25rem;
+        }
+
+        .quick-action-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    .slide-up {
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Loading States */
+    .loading {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .loading::after {
         content: '';
         position: absolute;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: white;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: loading 1.5s infinite;
     }
 
-    .progress-value {
-        position: relative;
-        z-index: 1;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-color);
+    @keyframes loading {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    /* Accessibility */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    /* Focus States */
+    .quick-action-btn:focus,
+    .period-toggle .btn:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    /* High Contrast Mode */
+    @media (prefers-contrast: high) {
+        .unified-card {
+            border: 2px solid var(--border-color);
+        }
+
+        .stats-widget {
+            border: 2px solid var(--border-color);
+        }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+        .unified-card,
+        .stats-widget,
+        .report-card,
+        .quick-action-btn {
+            transition: none;
+        }
+
+        .fade-in,
+        .slide-up {
+            animation: none;
+        }
     }
 </style>
 @endpush
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Counter animation for stats
-    function animateCounter(element, target, duration = 2000) {
-        let start = 0;
-        const increment = target / (duration / 16);
-        
-        function updateCounter() {
-            start += increment;
-            if (start < target) {
-                element.textContent = Math.floor(start).toLocaleString();
-                requestAnimationFrame(updateCounter);
-            } else {
-                element.textContent = target.toLocaleString();
-            }
-        }
-        
-        updateCounter();
-    }
-
-    // Animate all counter elements
-    document.querySelectorAll('.stats-value').forEach(function(element) {
-        const target = parseInt(element.textContent.replace(/,/g, ''));
-        if (!isNaN(target)) {
-            element.textContent = '0';
-            setTimeout(() => animateCounter(element, target), 500);
-        }
-    });
-
-    // Initialize charts if Chart.js is available
-    if (typeof Chart !== 'undefined') {
-        // Sample chart for demonstration
-        const chartCanvas = document.getElementById('dashboardChart');
-        if (chartCanvas) {
-            new Chart(chartCanvas, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Growth',
-                        data: [12, 19, 3, 5, 2, 3],
-                        borderColor: 'rgb(79, 70, 229)',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.1)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    // Auto-refresh dashboard data every 5 minutes
-    setInterval(function() {
-        console.log('Auto-refreshing dashboard data...');
-        // You can implement AJAX calls to refresh data here
-    }, 300000);
-});
-</script>
+<script src="{{ asset('js/unified-dashboard.js') }}"></script>
 @endpush 

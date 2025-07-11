@@ -71,7 +71,7 @@ class QuestionManagementController extends Controller
         // Get filter options
         $subjects = Subject::active()->get();
         $creators = User::whereIn('role', ['admin', 'teacher'])->get();
-        $boards = Question::distinct()->pluck('board')->filter()->sort();
+        $boards = ['CBSE', 'ICSE', 'State Board', 'IB', 'Cambridge', 'Other']; // Static boards since column doesn't exist
         $classLevels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'undergraduate', 'postgraduate'];
 
         return view('admin.questions.index', compact(
@@ -129,7 +129,6 @@ class QuestionManagementController extends Controller
             'subtopic' => 'nullable|string|max:255',
             'chapter' => 'nullable|string|max:255',
             'class_level' => 'nullable|string',
-            'board' => 'nullable|string|max:100',
             'category' => 'required|in:practice,exam,quiz,assignment,competition',
             'source' => 'nullable|string|max:255',
             'reference' => 'nullable|string|max:255',
@@ -239,7 +238,6 @@ class QuestionManagementController extends Controller
             'subtopic' => 'nullable|string|max:255',
             'chapter' => 'nullable|string|max:255',
             'class_level' => 'nullable|string',
-            'board' => 'nullable|string|max:100',
             'category' => 'required|in:practice,exam,quiz,assignment,competition',
             'source' => 'nullable|string|max:255',
             'reference' => 'nullable|string|max:255',

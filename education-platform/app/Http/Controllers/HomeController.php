@@ -62,11 +62,59 @@ class HomeController extends Controller
     }
 
     /**
+     * Ensure all commonly used keys are present in teacher data
+     */
+    private function ensureTeacherKeys($teacher)
+    {
+        return array_merge([
+            'id' => 0,
+            'name' => 'Unknown',
+            'slug' => '',
+            'subject' => 'General',
+            'experience' => 0,
+            'rating' => 4.0,
+            'total_students' => 0,
+            'students_count' => 0,
+            'hourly_rate' => 0,
+            'avatar' => '',
+            'location' => '',
+            'qualifications' => '',
+            'is_online' => false,
+            'specialization' => '',
+            'total_reviews' => 0,
+        ], $teacher);
+    }
+
+    /**
+     * Ensure all commonly used keys are present in institute data
+     */
+    private function ensureInstituteKeys($institute)
+    {
+        return array_merge([
+            'id' => 0,
+            'name' => 'Unknown Institute',
+            'slug' => '',
+            'type' => 'Institute',
+            'rating' => 4.0,
+            'total_students' => 0,
+            'students_count' => 0,
+            'logo' => '',
+            'location' => '',
+            'description' => '',
+            'established_year' => null,
+            'contact_phone' => '',
+            'website' => '',
+            'total_reviews' => 0,
+            'subjects' => collect(),
+        ], $institute);
+    }
+
+    /**
      * Get featured teachers for homepage
      */
     private function getFeaturedTeachers()
     {
-        return TeacherProfile::with(['user', 'subject'])
+        return TeacherProfile::with(['user', 'subject', 'reviews'])
             ->where('verification_status', 'verified')
             ->where('is_featured', true)
             ->whereHas('user', function($query) {
@@ -78,7 +126,7 @@ class HomeController extends Controller
             ->take(8)
             ->get()
             ->map(function($teacher) {
-                return [
+                $teacherData = [
                     'id' => $teacher->id,
                     'name' => $teacher->user->name ?? 'Unknown',
                     'slug' => $teacher->slug ?: 'teacher-' . $teacher->id,
@@ -86,13 +134,16 @@ class HomeController extends Controller
                     'experience' => $teacher->experience_years ?? 0,
                     'rating' => $teacher->rating ?? 4.0,
                     'total_students' => $teacher->total_students ?? 0,
-                    'hourly_rate' => $teacher->hourly_rate,
+                    'hourly_rate' => $teacher->hourly_rate ?? 0,
                     'avatar' => $teacher->avatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($teacher->user->name ?? 'Teacher') . '&size=200&background=random',
                     'location' => trim(($teacher->city ?? '') . ', ' . ($teacher->state ?? ''), ', ') ?: null,
                     'qualifications' => $teacher->qualifications ?: $teacher->qualification,
                     'is_online' => $teacher->availability_status === 'available',
                     'specialization' => $teacher->specialization,
+                    'total_reviews' => $teacher->reviews->count() ?? 0,
                 ];
+                
+                return $this->ensureTeacherKeys($teacherData);
             });
     }
 
@@ -101,7 +152,7 @@ class HomeController extends Controller
      */
     private function getFeaturedInstitutes()
     {
-        return Institute::with('user')
+        return Institute::with(['user', 'reviews', 'subjects'])
             ->where('verification_status', 'verified')
             ->where('is_featured', true)
             ->whereHas('user', function($query) {
@@ -112,20 +163,25 @@ class HomeController extends Controller
             ->take(6)
             ->get()
             ->map(function($institute) {
-                return [
+                $instituteData = [
                     'id' => $institute->id,
                     'name' => $institute->institute_name,
                     'slug' => $institute->slug,
                     'type' => $institute->institute_type,
-                    'rating' => $institute->rating,
-                    'total_students' => $institute->total_students,
+                    'rating' => $institute->rating ?? 4.0,
+                    'total_students' => $institute->total_students ?? 0,
+                    'students_count' => $institute->total_students ?? 0, // Alias for compatibility
                     'logo' => $institute->logo ?: asset('images/default-institute.png'),
                     'location' => trim(($institute->city ?? '') . ', ' . ($institute->state ?? ''), ', '),
                     'description' => $institute->description,
                     'established_year' => $institute->established_year,
                     'contact_phone' => $institute->contact_phone,
                     'website' => $institute->website,
+                    'total_reviews' => $institute->reviews->count() ?? 0,
+                    'subjects' => $institute->subjects ?? collect(),
                 ];
+                
+                return $this->ensureInstituteKeys($instituteData);
             });
     }
 

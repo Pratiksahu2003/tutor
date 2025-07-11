@@ -99,7 +99,7 @@ class User extends Authenticatable
      */
     public function hasRole(string $roleName): bool
     {
-        return $this->roles()->where('slug', $roleName)->exists();
+        return $this->roles()->where('name', $roleName)->exists();
     }
 
     /**
@@ -137,14 +137,14 @@ class User extends Authenticatable
     /**
      * Check if user has a specific permission
      */
-    public function hasPermission(string $permissionSlug): bool
+    public function hasPermission(string $permissionName): bool
     {
         // Super admins have all permissions
         if ($this->hasRole('super-admin')) {
             return true;
         }
 
-        return $this->getAllPermissions()->contains('slug', $permissionSlug);
+        return $this->getAllPermissions()->contains('name', $permissionName);
     }
 
     /**
@@ -163,11 +163,8 @@ class User extends Authenticatable
      */
     public function assignRole(Role $role): bool
     {
-        if (!$this->hasRole($role->slug)) {
-            $this->roles()->attach($role->id, [
-                'assigned_at' => now(),
-                'assigned_by' => auth()->id(),
-            ]);
+        if (!$this->hasRole($role->name)) {
+            $this->roles()->attach($role->id);
             return true;
         }
         return false;
@@ -178,7 +175,7 @@ class User extends Authenticatable
      */
     public function removeRole(Role $role): bool
     {
-        if ($this->hasRole($role->slug)) {
+        if ($this->hasRole($role->name)) {
             $this->roles()->detach($role->id);
             return true;
         }
@@ -190,14 +187,7 @@ class User extends Authenticatable
      */
     public function syncRoles(array $roleIds): void
     {
-        $syncData = [];
-        foreach ($roleIds as $roleId) {
-            $syncData[$roleId] = [
-                'assigned_at' => now(),
-                'assigned_by' => auth()->id(),
-            ];
-        }
-        $this->roles()->sync($syncData);
+        $this->roles()->sync($roleIds);
     }
 
     /**

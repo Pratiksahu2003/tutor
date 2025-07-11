@@ -44,7 +44,7 @@ class UserManagementController extends Controller
 
         $users = $query->orderBy('created_at', 'desc')->paginate(15);
         
-        $roles = Role::active()->get();
+        $roles = Role::all();
 
         return view('admin.users.index', compact('users', 'roles'));
     }
@@ -54,7 +54,7 @@ class UserManagementController extends Controller
      */
     public function create()
     {
-        $roles = Role::active()->get();
+        $roles = Role::all();
         return view('admin.users.create', compact('roles'));
     }
 
@@ -126,7 +126,7 @@ class UserManagementController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::active()->get();
+        $roles = Role::all();
         $user->load('roles');
         return view('admin.users.edit', compact('user', 'roles'));
     }

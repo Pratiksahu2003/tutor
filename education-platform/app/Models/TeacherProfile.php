@@ -13,68 +13,49 @@ class TeacherProfile extends Model
         'user_id',
         'subject_id',
         'institute_id',
+        'branch_id',
+        'slug',
         'qualification',
         'qualifications',
         'bio',
-        'avatar',
         'experience_years',
         'hourly_rate',
+        'monthly_rate',
         'specialization',
-        'slug',
         'languages',
         'availability',
-        'availability_status',
         'teaching_mode',
-        'rating',
-        'total_students',
-        'verified',
-        'verification_status',
-        'is_featured',
-        'city',
-        'state',
-        'employment_type',
-        'institute_subjects',
-        'institute_experience',
-        'is_institute_verified',
-        // Branch-specific fields
-        'branch_id',
-        'branch_role',
-        'is_branch_verified',
-        'branch_permissions',
-        'branch_notes',
-        'branch_joined_date',
-        // Location fields
-        'teaching_city',
-        'teaching_state',
-        'teaching_pincode',
-        'teaching_area',
-        'teaching_latitude',
-        'teaching_longitude',
-        'travel_radius_km',
-        'preferred_areas',
+        'online_classes',
         'home_tuition',
         'institute_classes',
-        'online_classes',
+        'travel_radius_km',
+        'city',
+        'state',
+        'teaching_city',
+        'rating',
+        'total_students',
+        'total_reviews',
+        'verified',
+        'verification_status',
+        'availability_status',
+        'is_featured',
+        'avatar',
+        'teaching_preferences',
+        'certifications',
     ];
 
     protected $casts = [
         'languages' => 'array',
-        'institute_subjects' => 'array',
-        'hourly_rate' => 'decimal:2',
+        'teaching_preferences' => 'array',
+        'certifications' => 'array',
         'rating' => 'decimal:2',
+        'hourly_rate' => 'decimal:2',
+        'monthly_rate' => 'decimal:2',
         'verified' => 'boolean',
         'is_featured' => 'boolean',
-        'is_institute_verified' => 'boolean',
-        'is_branch_verified' => 'boolean',
-        'branch_permissions' => 'array',
-        'branch_joined_date' => 'datetime',
-        'teaching_latitude' => 'decimal:8',
-        'teaching_longitude' => 'decimal:8',
-        'travel_radius_km' => 'decimal:2',
-        'preferred_areas' => 'array',
+        'online_classes' => 'boolean',
         'home_tuition' => 'boolean',
         'institute_classes' => 'boolean',
-        'online_classes' => 'boolean',
     ];
 
     protected static function boot()
@@ -194,20 +175,14 @@ class TeacherProfile extends Model
         return $this->verified;
     }
 
-    /**
-     * Check if teacher is verified by institute
-     */
-    public function isInstituteVerified(): bool
+    public function isInstituteVerified()
     {
-        return $this->is_institute_verified;
+        return $this->verification_status === 'verified' && $this->institute_id !== null;
     }
 
-    /**
-     * Check if teacher is verified by branch
-     */
-    public function isBranchVerified(): bool
+    public function isBranchVerified()
     {
-        return $this->is_branch_verified;
+        return $this->verification_status === 'verified' && $this->branch_id !== null;
     }
 
     /**
@@ -352,16 +327,12 @@ class TeacherProfile extends Model
         return $this->branch_role === 'coordinator' && $this->isBranchVerified();
     }
 
-    /**
-     * Get all verification statuses
-     */
     public function getVerificationStatusAttribute()
     {
         return [
-            'admin_verified' => $this->verified,
-            'institute_verified' => $this->is_institute_verified,
-            'branch_verified' => $this->is_branch_verified,
-            'fully_verified' => $this->verified && $this->is_institute_verified && ($this->hasBranch() ? $this->is_branch_verified : true),
+            'verified' => $this->verified,
+            'verification_status' => $this->verification_status,
+            'fully_verified' => $this->verified && $this->verification_status === 'verified',
         ];
     }
 
@@ -480,7 +451,7 @@ class TeacherProfile extends Model
      */
     public function scopeVerified($query)
     {
-        return $query->where('verified', true);
+        return $query->where('verification_status', 'verified');
     }
 
     /**
@@ -488,7 +459,7 @@ class TeacherProfile extends Model
      */
     public function scopeInstituteVerified($query)
     {
-        return $query->where('is_institute_verified', true);
+        return $query->where('verification_status', 'verified')->whereNotNull('institute_id');
     }
 
     /**
@@ -496,7 +467,7 @@ class TeacherProfile extends Model
      */
     public function scopeBranchVerified($query)
     {
-        return $query->where('is_branch_verified', true);
+        return $query->where('verification_status', 'verified')->whereNotNull('branch_id');
     }
 
     /**

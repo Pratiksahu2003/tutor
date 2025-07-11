@@ -29,7 +29,6 @@ class Question extends Model
         'subtopic',
         'chapter',
         'class_level',
-        'board',
         'tags',
         'category',
         'source',
@@ -131,14 +130,6 @@ class Question extends Model
     public function scopeByClassLevel($query, $classLevel)
     {
         return $query->where('class_level', $classLevel);
-    }
-
-    /**
-     * Scope for questions by board
-     */
-    public function scopeByBoard($query, $board)
-    {
-        return $query->where('board', $board);
     }
 
     /**

@@ -96,9 +96,67 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer bg-dark text-light py-4 mt-5">
+    <footer class="footer bg-dark text-light py-5 mt-5">
         <div class="container">
             <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h5 class="mb-3">EduPlatform</h5>
+                    <p class="text-muted mb-3">
+                        Connect with the best teachers and institutes for personalized learning. 
+                        Start your educational journey with us today.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-light me-3"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-light me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ route('home') }}" class="text-muted text-decoration-none">Home</a></li>
+                        <li class="mb-2"><a href="{{ route('about') }}" class="text-muted text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="{{ route('contact') }}" class="text-muted text-decoration-none">Contact</a></li>
+                        <li class="mb-2"><a href="{{ route('faq') }}" class="text-muted text-decoration-none">FAQ</a></li>
+                        <li class="mb-2"><a href="{{ route('how-it-works') }}" class="text-muted text-decoration-none">How It Works</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">For Teachers</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ route('register') }}?role=teacher" class="text-muted text-decoration-none">Join as Teacher</a></li>
+                        <li class="mb-2"><a href="{{ route('teachers.index') }}" class="text-muted text-decoration-none">Browse Teachers</a></li>
+                        <li class="mb-2"><a href="{{ route('institutes.index') }}" class="text-muted text-decoration-none">Browse Institutes</a></li>
+                        <li class="mb-2"><a href="{{ route('careers') }}" class="text-muted text-decoration-none">Careers</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">For Students</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ route('register') }}?role=student" class="text-muted text-decoration-none">Join as Student</a></li>
+                        <li class="mb-2"><a href="{{ route('search.index') }}" class="text-muted text-decoration-none">Find Teachers</a></li>
+                        <li class="mb-2"><a href="{{ route('search.institutes') }}" class="text-muted text-decoration-none">Find Institutes</a></li>
+                        <li class="mb-2"><a href="{{ route('faq') }}" class="text-muted text-decoration-none">Help & Support</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="mb-3">Legal</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ route('terms') }}" class="text-muted text-decoration-none">Terms & Conditions</a></li>
+                        <li class="mb-2"><a href="{{ route('privacy') }}" class="text-muted text-decoration-none">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="{{ route('contact') }}" class="text-muted text-decoration-none">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <div class="row align-items-center">
                 <div class="col-md-6">
                     <p class="mb-0">&copy; {{ date('Y') }} EduPlatform. All rights reserved.</p>
                 </div>

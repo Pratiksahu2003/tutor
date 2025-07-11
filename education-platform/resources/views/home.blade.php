@@ -1,108 +1,203 @@
 @extends('layouts.app')
 
-@section('title', $seo_data['title'])
-@section('meta_description', $seo_data['description'])
-@section('meta_keywords', $seo_data['keywords'])
+@section('title', 'Find the Best Teachers & Institutes Near You')
+@section('meta_description', 'Connect with verified teachers and top-rated institutes. Start your learning journey with personalized education.')
+@section('meta_keywords', 'teachers, institutes, education, tutoring, online learning, home tuition')
 
 @section('content')
 
-<!-- Modern Hero Section -->
-<section class="modern-hero">
-    <div class="container-fluid px-0">
-        <div class="hero-content-wrapper">
-            <div class="hero-background">
-                <div class="hero-gradient"></div>
-                <div class="hero-shapes">
-                    <div class="shape shape-1"></div>
-                    <div class="shape shape-2"></div>
-                    <div class="shape shape-3"></div>
-                </div>
-            </div>
-            
-            <div class="container">
-                <div class="row align-items-center min-vh-100 py-5">
-                    <div class="col-lg-6">
-                        <div class="hero-text-content">
-                            <div class="hero-badge mb-4">
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                    <i class="fas fa-star me-2"></i>Trusted by {{ number_format($stats['total_students']) }}+ Students
-                                </span>
-                            </div>
-                            
-                            <h1 class="hero-title">
-                                Learn From The
-                                <span class="text-gradient">Best Educators</span>
-                                Near You
-                            </h1>
-                            
-                            <p class="hero-description">
-                                Connect with verified teachers and top-rated institutes. Start your learning journey 
-                                with personalized education that fits your schedule and learning style.
-                            </p>
-                            
-                            <div class="hero-search-box">
-                                <form action="{{ route('search.index') }}" method="GET" class="search-form-modern">
-                                    <div class="search-input-group">
-                                        <div class="search-field">
-                                            <i class="fas fa-search search-icon"></i>
-                                            <input type="text" name="subject" placeholder="What do you want to learn?" 
-                                                   class="form-control search-input" autocomplete="off">
-                                        </div>
-                                        <div class="search-field">
-                                            <i class="fas fa-map-marker-alt search-icon"></i>
-                                            <input type="text" name="location" placeholder="Your location" 
-                                                   class="form-control search-input" autocomplete="off">
-                                        </div>
-                                        <button type="submit" class="btn btn-primary search-btn">
-                                            <i class="fas fa-search me-2"></i>Search
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                            
-                            <div class="hero-stats-mini">
-                                <div class="stat-item">
-                                    <span class="stat-number">{{ number_format($stats['total_teachers']) }}+</span>
-                                    <span class="stat-label">Expert Teachers</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">{{ number_format($stats['active_institutes']) }}+</span>
-                                    <span class="stat-label">Top Institutes</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">{{ number_format($stats['total_subjects']) }}+</span>
-                                    <span class="stat-label">Subjects</span>
-                                </div>
-                            </div>
-                        </div>
+<!-- Hero Section with Advanced Search -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-overlay"></div>
+        <div class="hero-pattern"></div>
+    </div>
+    
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge bg-success bg-opacity-20 text-success px-3 py-2 rounded-pill">
+                            <i class="fas fa-shield-alt me-2"></i>Verified Teachers & Institutes
+                        </span>
                     </div>
                     
-                    <div class="col-lg-6">
-                        <div class="hero-visual">
-                            <div class="floating-cards">
-                                @foreach($featured_teachers->take(3) as $index => $teacher)
-                                    <div class="floating-card floating-card-{{ $index + 1 }}">
-                                        <div class="teacher-mini-card">
-                                            <img src="{{ $teacher['avatar'] }}" alt="{{ $teacher['name'] }}" class="teacher-avatar-mini">
-                                            <div class="teacher-info-mini">
-                                                <h6>{{ $teacher['name'] }}</h6>
-                                                <p>{{ $teacher['subject'] }}</p>
-                                                <div class="rating-mini">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <i class="fas fa-star {{ $i <= $teacher['rating'] ? 'text-warning' : 'text-muted' }}"></i>
-                                                    @endfor
-                                                </div>
+                    <h1 class="hero-title">
+                        Find the Perfect
+                        <span class="text-gradient">Teacher</span>
+                        for Your Success
+                    </h1>
+                    
+                    <p class="hero-description">
+                        Connect with expert teachers and top-rated institutes. Get personalized learning 
+                        that matches your goals, schedule, and budget. Start your journey to excellence today.
+                    </p>
+                    
+                    <!-- Advanced Search Form -->
+                    <div class="advanced-search-form">
+                        <form action="{{ route('search.index') }}" method="GET" class="search-form">
+                            <div class="search-tabs">
+                                <button type="button" class="tab-btn active" data-tab="teachers">
+                                    <i class="fas fa-chalkboard-teacher me-2"></i>Find Teachers
+                                </button>
+                                <button type="button" class="tab-btn" data-tab="institutes">
+                                    <i class="fas fa-university me-2"></i>Find Institutes
+                                </button>
+                            </div>
+                            
+                            <div class="search-fields">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Subject</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-book"></i>
+                                                </span>
+                                                <select name="subject" class="form-select">
+                                                    <option value="">Select Subject</option>
+                                                    <option value="mathematics">Mathematics</option>
+                                                    <option value="science">Science</option>
+                                                    <option value="english">English</option>
+                                                    <option value="hindi">Hindi</option>
+                                                    <option value="physics">Physics</option>
+                                                    <option value="chemistry">Chemistry</option>
+                                                    <option value="biology">Biology</option>
+                                                    <option value="computer-science">Computer Science</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Location</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                </span>
+                                                <input type="text" name="location" placeholder="Enter your location" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="form-label">Budget</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-rupee-sign"></i>
+                                                </span>
+                                                <select name="budget" class="form-select">
+                                                    <option value="">Any Budget</option>
+                                                    <option value="0-500">₹0 - ₹500/hr</option>
+                                                    <option value="500-1000">₹500 - ₹1000/hr</option>
+                                                    <option value="1000-2000">₹1000 - ₹2000/hr</option>
+                                                    <option value="2000+">₹2000+/hr</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="form-label">Class/Grade</label>
+                                            <select name="grade" class="form-select">
+                                                <option value="">Any Grade</option>
+                                                <option value="1-5">Class 1-5</option>
+                                                <option value="6-8">Class 6-8</option>
+                                                <option value="9-10">Class 9-10</option>
+                                                <option value="11-12">Class 11-12</option>
+                                                <option value="college">College</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="form-label">Mode</label>
+                                            <select name="mode" class="form-select">
+                                                <option value="">Any Mode</option>
+                                                <option value="online">Online</option>
+                                                <option value="offline">Offline</option>
+                                                <option value="both">Both</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="form-label">Experience</label>
+                                            <select name="experience" class="form-select">
+                                                <option value="">Any Experience</option>
+                                                <option value="1-3">1-3 years</option>
+                                                <option value="3-5">3-5 years</option>
+                                                <option value="5-10">5-10 years</option>
+                                                <option value="10+">10+ years</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-primary btn-lg w-100 search-btn">
+                                            <i class="fas fa-search me-2"></i>Search Now
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div class="hero-image-main">
-                                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                                     alt="Students Learning" class="img-fluid rounded-4 shadow-lg">
-                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ number_format($stats['total_teachers']) }}+</span>
+                            <span class="stat-label">Expert Teachers</span>
                         </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ number_format($stats['active_institutes']) }}+</span>
+                            <span class="stat-label">Top Institutes</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ number_format($stats['total_students']) }}+</span>
+                            <span class="stat-label">Happy Students</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ number_format($stats['total_subjects']) }}+</span>
+                            <span class="stat-label">Subjects</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="floating-cards">
+                        @foreach($featured_teachers->take(3) as $index => $teacher)
+                            <div class="floating-card card-{{ $index + 1 }}">
+                                <div class="teacher-preview">
+                                    <img src="{{ $teacher['avatar'] }}" alt="{{ $teacher['name'] }}" class="teacher-avatar">
+                                    <div class="teacher-info">
+                                        <h6>{{ $teacher['name'] }}</h6>
+                                        <p>{{ $teacher['subject'] }}</p>
+                                        <div class="rating">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="fas fa-star {{ $i <= $teacher['rating'] ? 'text-warning' : 'text-muted' }}"></i>
+                                            @endfor
+                                            <span class="rating-text">{{ $teacher['rating'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    <div class="hero-image">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                             alt="Students Learning" class="img-fluid rounded-4 shadow-lg">
                     </div>
                 </div>
             </div>
@@ -110,26 +205,26 @@
     </div>
 </section>
 
-<!-- Popular Subjects Grid -->
-<section class="subjects-modern py-5">
+<!-- Popular Categories -->
+<section class="categories-section py-5">
     <div class="container">
         <div class="section-header text-center mb-5">
-            <h2 class="section-title">Popular Subjects</h2>
-            <p class="section-subtitle">Choose from our most popular learning categories</p>
+            <h2 class="section-title">Popular Learning Categories</h2>
+            <p class="section-subtitle">Choose from our most popular subjects and courses</p>
         </div>
         
-        <div class="subjects-grid">
+        <div class="categories-grid">
             @foreach($popular_subjects->take(8) as $index => $subject)
-                <a href="{{ route('teachers.by-subject', $subject['slug']) }}" class="subject-item-modern">
-                    <div class="subject-card-modern">
-                        <div class="subject-icon-modern">
-                            <i class="fas fa-{{ $subject['icon'] }}"></i>
-                        </div>
-                        <h5 class="subject-title-modern">{{ $subject['name'] }}</h5>
-                        <p class="subject-count-modern">{{ $subject['teachers_count'] }} teachers</p>
-                        <div class="subject-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                <a href="{{ route('teachers.by-subject', $subject['slug']) }}" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-{{ $subject['icon'] }}"></i>
+                    </div>
+                    <div class="category-content">
+                        <h5 class="category-title">{{ $subject['name'] }}</h5>
+                        <p class="category-count">{{ $subject['teachers_count'] }} teachers available</p>
+                    </div>
+                    <div class="category-arrow">
+                        <i class="fas fa-arrow-right"></i>
                     </div>
                 </a>
             @endforeach
@@ -137,99 +232,71 @@
         
         <div class="text-center mt-5">
             <a href="{{ route('teachers.index') }}" class="btn btn-outline-primary btn-lg">
-                View All Subjects
+                <i class="fas fa-th-large me-2"></i>View All Categories
             </a>
         </div>
     </div>
 </section>
 
-<!-- How It Works -->
-<section class="how-it-works py-5 bg-light">
-    <div class="container">
-        <div class="section-header text-center mb-5">
-            <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">Get started in 3 simple steps</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="step-card text-center">
-                    <div class="step-number">01</div>
-                    <div class="step-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h4 class="step-title">Search & Discover</h4>
-                    <p class="step-description">Find the perfect teacher or institute based on your subject, location, and preferences.</p>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="step-card text-center">
-                    <div class="step-number">02</div>
-                    <div class="step-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h4 class="step-title">Connect & Discuss</h4>
-                    <p class="step-description">Contact teachers directly, discuss your learning goals, and schedule your first session.</p>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="step-card text-center">
-                    <div class="step-number">03</div>
-                    <div class="step-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h4 class="step-title">Learn & Grow</h4>
-                    <p class="step-description">Start learning with personalized lessons and track your progress along the way.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Featured Teachers Modern -->
+<!-- Featured Teachers -->
 @if($featured_teachers->count() > 0)
-<section class="teachers-modern py-5">
+<section class="featured-teachers py-5 bg-light">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
                 <h2 class="section-title mb-2">Top Rated Teachers</h2>
                 <p class="section-subtitle mb-0">Learn from the best educators on our platform</p>
             </div>
-            <a href="{{ route('teachers.index') }}" class="btn btn-primary">View All</a>
+            <a href="{{ route('teachers.index') }}" class="btn btn-primary">
+                <i class="fas fa-eye me-2"></i>View All Teachers
+            </a>
         </div>
         
-        <div class="teachers-grid-modern">
+        <div class="teachers-grid">
             @foreach($featured_teachers->take(6) as $teacher)
-                <div class="teacher-card-modern">
+                <div class="teacher-card">
                     <div class="teacher-header">
-                        <img src="{{ $teacher['avatar'] }}" alt="{{ $teacher['name'] }}" class="teacher-avatar-modern">
+                        <img src="{{ $teacher['avatar'] }}" alt="{{ $teacher['name'] }}" class="teacher-avatar">
                         @if($teacher['is_online'])
-                            <span class="online-indicator"></span>
+                            <span class="online-badge">
+                                <i class="fas fa-circle"></i> Online
+                            </span>
                         @endif
+                        <div class="teacher-actions">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="teacher-content">
                         <h5 class="teacher-name">{{ $teacher['name'] }}</h5>
                         <p class="teacher-subject">{{ $teacher['subject'] }}</p>
                         
-                        <div class="teacher-rating-modern">
+                        <div class="teacher-rating">
                             <div class="rating-stars">
                                 @for($i = 1; $i <= 5; $i++)
                                     <i class="fas fa-star {{ $i <= $teacher['rating'] ? 'text-warning' : 'text-muted' }}"></i>
                                 @endfor
                             </div>
-                            <span class="rating-text">{{ $teacher['rating'] }} ({{ $teacher['total_students'] }} students)</span>
+                            <span class="rating-text">{{ $teacher['rating'] ?? 4.0 }} ({{ $teacher['total_students'] ?? 0 }} students)</span>
                         </div>
                         
                         <div class="teacher-meta">
                             <div class="meta-item">
                                 <i class="fas fa-clock"></i>
-                                <span>{{ $teacher['experience'] }}+ years</span>
+                                <span>{{ $teacher['experience'] ?? 0 }}+ years</span>
                             </div>
                             @if($teacher['hourly_rate'])
                                 <div class="meta-item">
                                     <i class="fas fa-rupee-sign"></i>
-                                    <span>₹{{ number_format($teacher['hourly_rate']) }}/hr</span>
+                                    <span>₹{{ number_format($teacher['hourly_rate'] ?? 0) }}/hr</span>
+                                </div>
+                            @endif
+                            @if($teacher['location'])
+                                <div class="meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ $teacher['location'] ?? 'Location not specified' }}</span>
                                 </div>
                             @endif
                         </div>
@@ -243,8 +310,8 @@
                     </div>
                     
                     <div class="teacher-footer">
-                        <a href="{{ route('teachers.show', $teacher['slug']) }}" class="btn btn-outline-primary btn-sm w-100">
-                            View Profile
+                        <a href="{{ route('teachers.show', $teacher['slug']) }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-user me-2"></i>View Profile
                         </a>
                     </div>
                 </div>
@@ -254,26 +321,27 @@
 </section>
 @endif
 
-<!-- Featured Institutes Modern -->
+<!-- Featured Institutes -->
 @if($featured_institutes->count() > 0)
-<section class="institutes-modern py-5 bg-light">
+<section class="featured-institutes py-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="section-title mb-2">Top Institutes</h2>
-                <p class="section-subtitle mb-0">Discover leading educational institutions</p>
+                <h2 class="section-title mb-2">Top Rated Institutes</h2>
+                <p class="section-subtitle mb-0">Discover the best educational institutes</p>
             </div>
-            <a href="{{ route('institutes.index') }}" class="btn btn-primary">View All</a>
+            <a href="{{ route('institutes.index') }}" class="btn btn-primary">
+                <i class="fas fa-eye me-2"></i>View All Institutes
+            </a>
         </div>
         
-        <div class="institutes-grid-modern">
-            @foreach($featured_institutes->take(6) as $institute)
-                <div class="institute-card-modern">
+        <div class="institutes-grid">
+            @foreach($featured_institutes->take(4) as $institute)
+                <div class="institute-card">
                     <div class="institute-header">
-                        <img src="{{ $institute['logo'] }}" alt="{{ $institute['name'] }}" class="institute-logo-modern">
-                        <div class="institute-rating">
-                            <span class="rating-badge">{{ $institute['rating'] }}</span>
-                            <i class="fas fa-star text-warning"></i>
+                        <img src="{{ $institute['logo'] }}" alt="{{ $institute['name'] }}" class="institute-logo">
+                        <div class="institute-badge">
+                            <span class="badge bg-success">Verified</span>
                         </div>
                     </div>
                     
@@ -281,34 +349,36 @@
                         <h5 class="institute-name">{{ $institute['name'] }}</h5>
                         <p class="institute-type">{{ $institute['type'] }}</p>
                         
-                        @if($institute['description'])
-                            <p class="institute-description">{{ Str::limit($institute['description'], 80) }}</p>
-                        @endif
-                        
-                        <div class="institute-stats-modern">
-                            <div class="stat-item-modern">
-                                <span class="stat-value">{{ number_format($institute['total_students']) }}+</span>
-                                <span class="stat-label">Students</span>
+                        <div class="institute-rating">
+                            <div class="rating-stars">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= $institute['rating'] ? 'text-warning' : 'text-muted' }}"></i>
+                                @endfor
                             </div>
-                            @if($institute['established_year'])
-                                <div class="stat-item-modern">
-                                    <span class="stat-value">{{ $institute['established_year'] }}</span>
-                                    <span class="stat-label">Established</span>
-                                </div>
-                            @endif
+                            <span class="rating-text">{{ $institute['rating'] }} ({{ $institute['total_reviews'] ?? 0 }} reviews)</span>
                         </div>
                         
-                        @if($institute['location'])
-                            <div class="institute-location">
+                        <div class="institute-meta">
+                            <div class="meta-item">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ $institute['location'] }}</span>
+                                <span>{{ $institute['location'] ?? 'Location not specified' }}</span>
                             </div>
-                        @endif
+                            <div class="meta-item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ $institute['students_count'] ?? 0 }} students</span>
+                            </div>
+                        </div>
+                        
+                        <div class="institute-subjects">
+                            @foreach(($institute['subjects'] ?? collect())->take(3) as $subject)
+                                <span class="subject-tag">{{ $subject['name'] ?? $subject->name ?? 'Subject' }}</span>
+                            @endforeach
+                        </div>
                     </div>
                     
                     <div class="institute-footer">
                         <a href="{{ route('institutes.show', $institute['slug']) }}" class="btn btn-outline-primary btn-sm w-100">
-                            View Institute
+                            <i class="fas fa-building me-2"></i>View Institute
                         </a>
                     </div>
                 </div>
@@ -318,69 +388,141 @@
 </section>
 @endif
 
-<!-- Testimonials Modern -->
-@if($testimonials->count() > 0)
-<section class="testimonials-modern py-5">
+<!-- How It Works -->
+<section class="how-it-works py-5 bg-light">
     <div class="container">
         <div class="section-header text-center mb-5">
-            <h2 class="section-title">What Our Community Says</h2>
-            <p class="section-subtitle">Real stories from students and educators</p>
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Get started in 3 simple steps</p>
         </div>
         
-        <div class="testimonials-slider">
-            <div class="testimonials-track">
-                @foreach($testimonials as $testimonial)
-                    <div class="testimonial-card-modern">
-                        <div class="testimonial-content">
-                            <div class="quote-icon">
-                                <i class="fas fa-quote-left"></i>
-                            </div>
-                            <p class="testimonial-text">"{{ $testimonial['content'] }}"</p>
-                            <div class="testimonial-rating">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star {{ $i <= $testimonial['rating'] ? 'text-warning' : 'text-muted' }}"></i>
-                                @endfor
-                            </div>
-                        </div>
-                        <div class="testimonial-author">
-                            <img src="{{ $testimonial['avatar'] }}" alt="{{ $testimonial['name'] }}" class="author-avatar">
-                            <div class="author-info">
-                                <h6 class="author-name">{{ $testimonial['name'] }}</h6>
-                                <p class="author-role">{{ $testimonial['designation'] }}</p>
-                                @if($testimonial['subject'] !== 'General')
-                                    <span class="author-subject">{{ $testimonial['subject'] }}</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4 class="step-title">Search & Discover</h4>
+                <p class="step-description">Find the perfect teacher or institute based on your subject, location, and preferences.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h4 class="step-title">Connect & Discuss</h4>
+                <p class="step-description">Contact teachers directly, discuss your learning goals, and schedule your first session.</p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <div class="step-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h4 class="step-title">Learn & Grow</h4>
+                <p class="step-description">Start learning with personalized lessons and track your progress along the way.</p>
             </div>
         </div>
     </div>
 </section>
-@endif
 
-<!-- CTA Section Modern -->
-<section class="cta-modern">
+<!-- Testimonials -->
+<section class="testimonials-section py-5">
     <div class="container">
-        <div class="cta-content-wrapper">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <div class="cta-content">
-                        <h2 class="cta-title">Ready to Start Learning?</h2>
-                        <p class="cta-description">Join thousands of students and connect with the best educators today.</p>
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">What Our Students Say</h2>
+            <p class="section-subtitle">Real stories from real students</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <div class="rating">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star text-warning"></i>
+                        @endfor
+                    </div>
+                    <p class="testimonial-text">
+                        "Found an amazing math teacher who helped me improve my grades from C to A+. 
+                        The personalized approach made all the difference!"
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                             alt="Student" class="author-avatar">
+                        <div class="author-info">
+                            <h6 class="author-name">Priya Sharma</h6>
+                            <p class="author-details">Class 12 Student</p>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <div class="cta-buttons">
-                        <a href="{{ route('register') }}" class="btn btn-white btn-lg me-3">
-                            Get Started Free
-                        </a>
-                        <a href="{{ route('contact') }}" class="btn btn-outline-white btn-lg">
-                            Contact Us
-                        </a>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <div class="rating">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star text-warning"></i>
+                        @endfor
+                    </div>
+                    <p class="testimonial-text">
+                        "The institute I found here has excellent teachers and a great learning environment. 
+                        My child's confidence has improved significantly."
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                             alt="Parent" class="author-avatar">
+                        <div class="author-info">
+                            <h6 class="author-name">Rajesh Kumar</h6>
+                            <p class="author-details">Parent</p>
+                        </div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <div class="rating">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star text-warning"></i>
+                        @endfor
+                    </div>
+                    <p class="testimonial-text">
+                        "Online tutoring has been a game-changer for me. Flexible schedule, 
+                        great teachers, and I can study from anywhere!"
+                    </p>
+                    <div class="testimonial-author">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                             alt="Student" class="author-avatar">
+                        <div class="author-info">
+                            <h6 class="author-name">Aisha Patel</h6>
+                            <p class="author-details">College Student</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="cta-title">Ready to Start Your Learning Journey?</h2>
+                <p class="cta-description">
+                    Join thousands of students who have found their perfect teacher or institute. 
+                    Start your path to success today!
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('register') }}" class="btn btn-light btn-lg me-3">
+                    <i class="fas fa-user-plus me-2"></i>Join Now
+                </a>
+                <a href="{{ route('teachers.index') }}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-search me-2"></i>Find Teachers
+                </a>
             </div>
         </div>
     </div>
@@ -390,15 +532,12 @@
 
 @push('styles')
 <style>
-/* Modern Hero Section */
-.modern-hero {
+/* Hero Section */
+.hero-section {
     position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     overflow: hidden;
-}
-
-.hero-content-wrapper {
-    position: relative;
-    z-index: 2;
 }
 
 .hero-background {
@@ -407,62 +546,35 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1;
+    background: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
 }
 
-.hero-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.hero-overlay {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0.9;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
 }
 
-.hero-shapes {
+.hero-pattern {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
 }
 
-.shape {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.shape-1 {
-    width: 200px;
-    height: 200px;
-    top: 10%;
-    right: 10%;
-    animation: float 6s ease-in-out infinite;
-}
-
-.shape-2 {
-    width: 150px;
-    height: 150px;
-    top: 50%;
-    left: 5%;
-    animation: float 8s ease-in-out infinite reverse;
-}
-
-.shape-3 {
-    width: 100px;
-    height: 100px;
-    bottom: 20%;
-    right: 30%;
-    animation: float 10s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-}
-
-.hero-text-content {
-    color: white;
+.hero-content {
     position: relative;
-    z-index: 3;
+    z-index: 2;
+}
+
+.hero-badge {
+    margin-bottom: 2rem;
 }
 
 .hero-title {
@@ -473,7 +585,7 @@
 }
 
 .text-gradient {
-    background: linear-gradient(45deg, #ffd700, #ffeb3b);
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -486,55 +598,75 @@
     opacity: 0.9;
 }
 
-/* Hero Search */
-.hero-search-box {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
+/* Advanced Search Form */
+.advanced-search-form {
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
-    padding: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
     margin-bottom: 2rem;
 }
 
-.search-input-group {
+.search-tabs {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    margin-bottom: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 0.25rem;
 }
 
-.search-field {
-    position: relative;
+.tab-btn {
     flex: 1;
-}
-
-.search-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6b7280;
-    z-index: 5;
-}
-
-.search-input {
-    padding: 1rem 1rem 1rem 3rem;
     border: none;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.9);
-    width: 100%;
+    background: transparent;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-fields {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.input-group-text {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
 }
 
 .search-btn {
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    white-space: nowrap;
+    background: linear-gradient(45deg, #007bff, #0056b3);
     border: none;
-    background: #3b82f6;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
 }
 
 /* Hero Stats */
-.hero-stats-mini {
+.hero-stats {
     display: flex;
     gap: 2rem;
+    margin-top: 2rem;
 }
 
 .stat-item {
@@ -543,102 +675,113 @@
 
 .stat-number {
     display: block;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: #ffd700;
 }
 
 .stat-label {
-    display: block;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     opacity: 0.8;
 }
 
 /* Hero Visual */
 .hero-visual {
     position: relative;
-    height: 500px;
-}
-
-.hero-image-main {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
+    height: 100%;
 }
 
 .floating-cards {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
 }
 
 .floating-card {
     position: absolute;
-    background: white;
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
     padding: 1rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    animation: floatCard 6s ease-in-out infinite;
+    backdrop-filter: blur(10px);
+    animation: float 6s ease-in-out infinite;
 }
 
-.floating-card-1 {
+.card-1 {
     top: 10%;
     left: 10%;
     animation-delay: 0s;
 }
 
-.floating-card-2 {
-    top: 60%;
-    right: 10%;
+.card-2 {
+    top: 30%;
+    right: 15%;
     animation-delay: 2s;
 }
 
-.floating-card-3 {
-    top: 30%;
-    right: 25%;
+.card-3 {
+    bottom: 20%;
+    left: 20%;
     animation-delay: 4s;
 }
 
-@keyframes floatCard {
+@keyframes float {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
+    50% { transform: translateY(-20px); }
 }
 
-.teacher-mini-card {
+.teacher-preview {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    min-width: 200px;
 }
 
-.teacher-avatar-mini {
+.teacher-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 
-.teacher-info-mini h6 {
+.teacher-info h6 {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
-.teacher-info-mini p {
+.teacher-info p {
     margin: 0;
-    font-size: 0.8rem;
-    color: #6b7280;
+    font-size: 0.75rem;
+    color: #6c757d;
 }
 
-.rating-mini {
-    font-size: 0.7rem;
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
-/* Subjects Modern */
-.subjects-modern {
-    background: #f8fafc;
+.rating-text {
+    font-size: 0.75rem;
+    color: #ffc107;
+}
+
+.hero-image {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-image img {
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Categories Section */
+.categories-section {
+    background: white;
 }
 
 .section-header {
@@ -648,373 +791,383 @@
 .section-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #1e293b;
+    color: #2c3e50;
     margin-bottom: 1rem;
 }
 
 .section-subtitle {
-    font-size: 1.1rem;
-    color: #64748b;
+    font-size: 1.125rem;
+    color: #6c757d;
+    margin: 0;
 }
 
-.subjects-grid {
+.categories-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.subject-item-modern {
+.category-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border: 2px solid #f8f9fa;
+    border-radius: 15px;
     text-decoration: none;
     color: inherit;
-}
-
-.subject-card-modern {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
-    text-align: center;
     transition: all 0.3s ease;
-    border: 1px solid #e2e8f0;
     position: relative;
     overflow: hidden;
 }
 
-.subject-card-modern:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    border-color: #3b82f6;
+.category-card:hover {
+    border-color: #007bff;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
 }
 
-.subject-icon-modern {
+.category-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    border-radius: 16px;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1rem;
     color: white;
     font-size: 1.5rem;
+    margin-right: 1rem;
 }
 
-.subject-title-modern {
-    font-size: 1.25rem;
+.category-content {
+    flex: 1;
+}
+
+.category-title {
     font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #1e293b;
+    margin-bottom: 0.25rem;
+    color: #2c3e50;
 }
 
-.subject-count-modern {
-    color: #64748b;
-    margin-bottom: 1rem;
+.category-count {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0;
 }
 
-.subject-arrow {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+.category-arrow {
+    color: #007bff;
+    font-size: 1.25rem;
     opacity: 0;
     transition: all 0.3s ease;
-    color: #3b82f6;
 }
 
-.subject-card-modern:hover .subject-arrow {
+.category-card:hover .category-arrow {
     opacity: 1;
     transform: translateX(5px);
 }
 
-/* How It Works */
-.step-card {
-    position: relative;
-    padding: 2rem;
+/* Featured Teachers */
+.featured-teachers {
+    background: #f8f9fa;
 }
 
-.step-number {
-    position: absolute;
-    top: -1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-.step-icon {
-    width: 80px;
-    height: 80px;
-    background: #f1f5f9;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2rem auto 1.5rem;
-    color: #3b82f6;
-    font-size: 2rem;
-}
-
-.step-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #1e293b;
-}
-
-.step-description {
-    color: #64748b;
-    line-height: 1.6;
-}
-
-/* Teachers Modern */
-.teachers-grid-modern {
+.teachers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
-.teacher-card-modern {
+.teacher-card {
     background: white;
     border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    border: 1px solid #e2e8f0;
+    position: relative;
 }
 
-.teacher-card-modern:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+.teacher-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .teacher-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
     position: relative;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
-.teacher-avatar-modern {
-    width: 60px;
-    height: 60px;
+.teacher-avatar {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
     object-fit: cover;
 }
 
-.online-indicator {
+.online-badge {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 16px;
-    height: 16px;
-    background: #22c55e;
-    border: 3px solid white;
-    border-radius: 50%;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.online-badge i {
+    font-size: 0.5rem;
+    margin-right: 0.25rem;
+}
+
+.teacher-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.teacher-content {
+    padding: 1.5rem;
 }
 
 .teacher-name {
-    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: #1e293b;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
 }
 
 .teacher-subject {
-    color: #3b82f6;
-    font-weight: 500;
-    margin-bottom: 0.75rem;
-}
-
-.teacher-rating-modern {
+    color: #6c757d;
     margin-bottom: 1rem;
 }
 
+.teacher-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.rating-stars {
+    color: #ffc107;
+}
+
 .rating-text {
-    font-size: 0.9rem;
-    color: #64748b;
-    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
 .teacher-meta {
     display: flex;
     gap: 1rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .meta-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.9rem;
-    color: #64748b;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
 .teacher-location {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.9rem;
-    color: #64748b;
-    margin-bottom: 1rem;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
 }
 
 .teacher-footer {
-    border-top: 1px solid #e2e8f0;
-    padding-top: 1rem;
+    padding: 1rem 1.5rem 1.5rem;
 }
 
-/* Institutes Modern */
-.institutes-grid-modern {
+/* Featured Institutes */
+.institutes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
-.institute-card-modern {
+.institute-card {
     background: white;
     border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    border: 1px solid #e2e8f0;
 }
 
-.institute-card-modern:hover {
+.institute-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 .institute-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
+    position: relative;
+    padding: 1.5rem;
+    background: #f8f9fa;
 }
 
-.institute-logo-modern {
+.institute-logo {
     width: 60px;
     height: 60px;
     border-radius: 12px;
     object-fit: cover;
 }
 
-.institute-rating {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+.institute-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
 }
 
-.rating-badge {
-    background: #f59e0b;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
+.institute-content {
+    padding: 1.5rem;
 }
 
 .institute-name {
-    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: #1e293b;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
 }
 
 .institute-type {
-    color: #3b82f6;
-    font-weight: 500;
-    margin-bottom: 0.75rem;
-}
-
-.institute-description {
-    color: #64748b;
-    line-height: 1.5;
+    color: #6c757d;
     margin-bottom: 1rem;
 }
 
-.institute-stats-modern {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.stat-item-modern {
-    text-align: center;
-}
-
-.stat-value {
-    display: block;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    color: #64748b;
-}
-
-.institute-location {
+.institute-rating {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.9rem;
-    color: #64748b;
+    gap: 0.5rem;
     margin-bottom: 1rem;
+}
+
+.institute-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.institute-subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.subject-tag {
+    background: #e9ecef;
+    color: #495057;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
 }
 
 .institute-footer {
-    border-top: 1px solid #e2e8f0;
-    padding-top: 1rem;
+    padding: 1rem 1.5rem 1.5rem;
 }
 
-/* Testimonials Modern */
-.testimonials-slider {
-    overflow: hidden;
-    position: relative;
-}
-
-.testimonials-track {
-    display: flex;
+/* How It Works */
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
-    animation: scroll 30s linear infinite;
 }
 
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+.step-card {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
-.testimonial-card-modern {
+.step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem;
+}
+
+.step-icon {
+    width: 80px;
+    height: 80px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #007bff;
+    margin: 0 auto 1.5rem;
+}
+
+.step-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.step-description {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+/* Testimonials */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.testimonial-card {
     background: white;
     border-radius: 20px;
     padding: 2rem;
-    min-width: 400px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
-.quote-icon {
-    color: #3b82f6;
-    font-size: 2rem;
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-content {
+    position: relative;
+}
+
+.rating {
     margin-bottom: 1rem;
 }
 
 .testimonial-text {
-    font-size: 1.1rem;
+    font-size: 1.125rem;
     line-height: 1.6;
-    color: #374151;
-    margin-bottom: 1rem;
-}
-
-.testimonial-rating {
+    color: #495057;
     margin-bottom: 1.5rem;
+    font-style: italic;
 }
 
 .testimonial-author {
@@ -1033,27 +1186,18 @@
 .author-name {
     font-weight: 600;
     margin-bottom: 0.25rem;
-    color: #1e293b;
+    color: #2c3e50;
 }
 
-.author-role {
-    color: #64748b;
-    margin-bottom: 0.25rem;
+.author-details {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0;
 }
 
-.author-subject {
-    background: #3b82f6;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-}
-
-/* CTA Modern */
-.cta-modern {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: white;
-    padding: 5rem 0;
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .cta-title {
@@ -1063,26 +1207,9 @@
 }
 
 .cta-description {
-    font-size: 1.1rem;
+    font-size: 1.125rem;
     opacity: 0.9;
     margin-bottom: 0;
-}
-
-.btn-white {
-    background: white;
-    color: #1e293b;
-    border: none;
-}
-
-.btn-outline-white {
-    border: 2px solid white;
-    color: white;
-    background: transparent;
-}
-
-.btn-outline-white:hover {
-    background: white;
-    color: #1e293b;
 }
 
 /* Responsive Design */
@@ -1091,41 +1218,106 @@
         font-size: 2.5rem;
     }
     
-    .search-input-group {
-        flex-direction: column;
-    }
-    
-    .hero-stats-mini {
+    .hero-stats {
         flex-direction: column;
         gap: 1rem;
     }
     
-    .subjects-grid {
+    .advanced-search-form {
+        padding: 1.5rem;
+    }
+    
+    .search-tabs {
+        flex-direction: column;
+    }
+    
+    .categories-grid {
         grid-template-columns: 1fr;
     }
     
-    .teachers-grid-modern,
-    .institutes-grid-modern {
+    .teachers-grid {
         grid-template-columns: 1fr;
     }
     
-    .testimonial-card-modern {
-        min-width: 300px;
+    .institutes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: 1fr;
     }
     
     .cta-title {
         font-size: 2rem;
     }
-    
-    .cta-buttons {
-        margin-top: 2rem;
-    }
-    
-    .cta-buttons .btn {
-        display: block;
-        width: 100%;
-        margin-bottom: 1rem;
-    }
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const searchFields = document.querySelector('.search-fields');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all tabs
+            tabBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Update form action based on tab
+            const form = document.querySelector('.search-form');
+            if (this.dataset.tab === 'teachers') {
+                form.action = "{{ route('search.teachers') }}";
+            } else {
+                form.action = "{{ route('search.institutes') }}";
+            }
+        });
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Animate elements on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all cards and sections
+    document.querySelectorAll('.category-card, .teacher-card, .institute-card, .step-card, .testimonial-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+    });
+});
+</script>
 @endpush

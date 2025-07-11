@@ -16,6 +16,11 @@ class PageController extends Controller
         return view('pages.about', compact('content'));
     }
 
+    public function contact()
+    {
+        return view('pages.contact');
+    }
+
     public function terms()
     {
         $content = SiteSetting::get('terms_conditions', 'Terms and conditions content coming soon...');

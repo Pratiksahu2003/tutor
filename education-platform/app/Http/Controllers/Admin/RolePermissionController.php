@@ -31,8 +31,8 @@ class RolePermissionController extends Controller
             });
         }
 
-        $roles = $query->orderBy('sort_order')->paginate(15);
-        $permissions = Permission::active()->orderBy('category')->orderBy('name')->get();
+        $roles = $query->orderBy('name')->paginate(15);
+        $permissions = Permission::orderBy('name')->get();
 
         return view('admin.roles.index', compact('roles', 'permissions'));
     }
@@ -42,7 +42,7 @@ class RolePermissionController extends Controller
      */
     public function rolesCreate()
     {
-        $permissions = Permission::active()->orderBy('category')->orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get();
         return view('admin.roles.create', compact('permissions'));
     }
 
@@ -54,8 +54,6 @@ class RolePermissionController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:roles',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
-            'sort_order' => 'nullable|integer|min:0',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
@@ -69,8 +67,6 @@ class RolePermissionController extends Controller
         $role = Role::create([
             'name' => $request->name,
             'description' => $request->description,
-            'is_active' => $request->boolean('is_active', true),
-            'sort_order' => $request->sort_order ?? 0,
         ]);
 
         // Assign permissions to role
@@ -93,7 +89,7 @@ class RolePermissionController extends Controller
     public function rolesEdit(Role $role)
     {
         $role->load('permissions');
-        $permissions = Permission::active()->orderBy('category')->orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get();
         return view('admin.roles.edit', compact('role', 'permissions'));
     }
 
@@ -105,8 +101,6 @@ class RolePermissionController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($role->id)],
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
-            'sort_order' => 'nullable|integer|min:0',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
         ]);
@@ -120,8 +114,6 @@ class RolePermissionController extends Controller
         $role->update([
             'name' => $request->name,
             'description' => $request->description,
-            'is_active' => $request->boolean('is_active', true),
-            'sort_order' => $request->sort_order ?? 0,
         ]);
 
         // Sync permissions
@@ -166,14 +158,6 @@ class RolePermissionController extends Controller
     {
         $query = Permission::query();
 
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
-
-        if ($request->filled('module')) {
-            $query->where('module', $request->module);
-        }
-
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -182,12 +166,9 @@ class RolePermissionController extends Controller
             });
         }
 
-        $permissions = $query->orderBy('category')->orderBy('module')->orderBy('name')->paginate(20);
+        $permissions = $query->orderBy('name')->paginate(20);
 
-        $categories = Permission::distinct()->pluck('category')->filter()->sort();
-        $modules = Permission::distinct()->pluck('module')->filter()->sort();
-
-        return view('admin.permissions.index', compact('permissions', 'categories', 'modules'));
+        return view('admin.permissions.index', compact('permissions'));
     }
 
     /**
@@ -195,9 +176,7 @@ class RolePermissionController extends Controller
      */
     public function permissionsCreate()
     {
-        $categories = Permission::distinct()->pluck('category')->filter()->sort();
-        $modules = Permission::distinct()->pluck('module')->filter()->sort();
-        return view('admin.permissions.create', compact('categories', 'modules'));
+        return view('admin.permissions.create');
     }
 
     /**
@@ -208,9 +187,6 @@ class RolePermissionController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:permissions',
             'description' => 'nullable|string',
-            'category' => 'required|string|max:100',
-            'module' => 'required|string|max:100',
-            'is_active' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -222,9 +198,6 @@ class RolePermissionController extends Controller
         Permission::create([
             'name' => $request->name,
             'description' => $request->description,
-            'category' => $request->category,
-            'module' => $request->module,
-            'is_active' => $request->boolean('is_active', true),
         ]);
 
         return redirect()->route('admin.permissions.index')

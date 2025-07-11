@@ -12,35 +12,13 @@ class Role extends Model
 
     protected $fillable = [
         'name',
-        'slug',
+        'display_name',
         'description',
-        'is_active',
-        'sort_order',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        // No casts needed since is_active doesn't exist
     ];
-
-    /**
-     * Boot method to automatically generate slug
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($role) {
-            if (empty($role->slug)) {
-                $role->slug = Str::slug($role->name);
-            }
-        });
-
-        static::updating(function ($role) {
-            if ($role->isDirty('name') && empty($role->slug)) {
-                $role->slug = Str::slug($role->name);
-            }
-        });
-    }
 
     /**
      * Get the users that have this role
@@ -48,7 +26,6 @@ class Role extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_roles')
-                    ->withPivot(['assigned_at', 'assigned_by'])
                     ->withTimestamps();
     }
 
@@ -58,7 +35,6 @@ class Role extends Model
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'role_permissions')
-                    ->withPivot(['granted_at', 'granted_by'])
                     ->withTimestamps();
     }
 
@@ -68,7 +44,7 @@ class Role extends Model
     public function hasPermission($permission): bool
     {
         if (is_string($permission)) {
-            return $this->permissions()->where('slug', $permission)->exists();
+            return $this->permissions()->where('name', $permission)->exists();
         }
 
         return $this->permissions()->where('id', $permission->id)->exists();
@@ -80,17 +56,14 @@ class Role extends Model
     public function givePermission($permission, $grantedBy = null)
     {
         if (is_string($permission)) {
-            $permission = Permission::where('slug', $permission)->first();
+            $permission = Permission::where('name', $permission)->first();
         }
 
         if (!$permission) {
             return false;
         }
 
-        return $this->permissions()->attach($permission->id, [
-            'granted_at' => now(),
-            'granted_by' => $grantedBy,
-        ]);
+        return $this->permissions()->attach($permission->id);
     }
 
     /**
@@ -99,7 +72,7 @@ class Role extends Model
     public function removePermission($permission)
     {
         if (is_string($permission)) {
-            $permission = Permission::where('slug', $permission)->first();
+            $permission = Permission::where('name', $permission)->first();
         }
 
         if (!$permission) {
@@ -107,13 +80,5 @@ class Role extends Model
         }
 
         return $this->permissions()->detach($permission->id);
-    }
-
-    /**
-     * Scope for active roles
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
     }
 }

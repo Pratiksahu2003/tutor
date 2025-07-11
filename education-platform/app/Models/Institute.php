@@ -143,7 +143,7 @@ class Institute extends Model
      */
     public function verifiedTeachers()
     {
-        return $this->hasMany(TeacherProfile::class)->where('is_institute_verified', true);
+        return $this->hasMany(TeacherProfile::class)->where('verification_status', 'verified');
     }
 
     /**
@@ -151,7 +151,7 @@ class Institute extends Model
      */
     public function verifiedBranchTeachers()
     {
-        return $this->hasMany(TeacherProfile::class, 'branch_id')->where('is_branch_verified', true);
+        return $this->hasMany(TeacherProfile::class, 'branch_id')->where('verification_status', 'verified');
     }
 
     /**
@@ -159,7 +159,7 @@ class Institute extends Model
      */
     public function pendingTeachers()
     {
-        return $this->hasMany(TeacherProfile::class)->where('is_institute_verified', false);
+        return $this->hasMany(TeacherProfile::class)->where('verification_status', 'pending');
     }
 
     /**
@@ -445,7 +445,7 @@ class Institute extends Model
     public function verifyTeacher(TeacherProfile $teacher): bool
     {
         if ($teacher->institute_id === $this->id || $teacher->branch_id === $this->id) {
-            return $teacher->update(['is_institute_verified' => true]);
+            return $teacher->update(['verification_status' => 'verified']);
         }
         return false;
     }
@@ -456,7 +456,7 @@ class Institute extends Model
     public function verifyBranchTeacher(TeacherProfile $teacher): bool
     {
         if ($teacher->branch_id === $this->id) {
-            return $teacher->update(['is_branch_verified' => true]);
+            return $teacher->update(['verification_status' => 'verified']);
         }
         return false;
     }
@@ -467,7 +467,7 @@ class Institute extends Model
     public function unverifyTeacher(TeacherProfile $teacher): bool
     {
         if ($teacher->institute_id === $this->id || $teacher->branch_id === $this->id) {
-            return $teacher->update(['is_institute_verified' => false]);
+            return $teacher->update(['verification_status' => 'pending']);
         }
         return false;
     }

@@ -1,85 +1,77 @@
 <?php
 
-use App\Http\Controllers\Student\StudentDashboardController;
-use App\Http\Controllers\Student\SearchController as StudentSearchController;
-use App\Http\Controllers\Student\InquiryController;
-use App\Http\Controllers\Student\BookingController;
-use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Student\StudentDashboardController;
 
 /*
 |--------------------------------------------------------------------------
 | Student Routes
 |--------------------------------------------------------------------------
 |
-| All student-related routes with proper middleware protection
+| Here is where you can register student-specific routes for your application.
+| These routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "student" middleware group.
 |
 */
 
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+    // Redirect old dashboard routes to unified dashboard
+    Route::get('/dashboard', function () {
+        return redirect()->route('dashboard');
+    })->name('dashboard');
     
-    // Dashboard Routes
-    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+    // API routes for unified dashboard
     Route::get('/api/stats', [StudentDashboardController::class, 'getStats'])->name('api.stats');
+    Route::get('/api/recent-activity', [StudentDashboardController::class, 'getRecentActivity'])->name('api.activity');
     
-    // Profile Management Routes
+    // Profile Management
     Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [StudentProfileController::class, 'show'])->name('show');
-        Route::get('/edit', [StudentProfileController::class, 'edit'])->name('edit');
-        Route::put('/', [StudentProfileController::class, 'update'])->name('update');
-        Route::post('/photo', [StudentProfileController::class, 'updatePhoto'])->name('photo.update');
+        Route::get('/', [StudentDashboardController::class, 'profile'])->name('index');
+        Route::put('/', [StudentDashboardController::class, 'updateProfile'])->name('update');
+        Route::post('/avatar', [StudentDashboardController::class, 'updateAvatar'])->name('avatar');
+        Route::delete('/avatar', [StudentDashboardController::class, 'removeAvatar'])->name('avatar.remove');
     });
     
-    // Search & Discovery Routes
-    Route::prefix('search')->name('search.')->group(function () {
-        Route::get('/teachers', [StudentSearchController::class, 'teachers'])->name('teachers');
-        Route::get('/institutes', [StudentSearchController::class, 'institutes'])->name('institutes');
-        Route::get('/subjects', [StudentSearchController::class, 'subjects'])->name('subjects');
-        Route::get('/advanced', [StudentSearchController::class, 'advanced'])->name('advanced');
-        Route::get('/nearby', [StudentSearchController::class, 'nearby'])->name('nearby');
-        Route::post('/filters', [StudentSearchController::class, 'applyFilters'])->name('filters');
-        Route::get('/saved', [StudentSearchController::class, 'savedSearches'])->name('saved');
-        Route::post('/save', [StudentSearchController::class, 'saveSearch'])->name('save');
+    // Learning Management
+    Route::prefix('learning')->name('learning.')->group(function () {
+        Route::get('/', [StudentDashboardController::class, 'learning'])->name('index');
+        Route::get('/subjects', [StudentDashboardController::class, 'subjects'])->name('subjects');
+        Route::get('/progress', [StudentDashboardController::class, 'progress'])->name('progress');
+        Route::get('/goals', [StudentDashboardController::class, 'goals'])->name('goals');
+        Route::post('/goals', [StudentDashboardController::class, 'updateGoals'])->name('goals.update');
     });
     
-    // Teacher & Institute Inquiry Routes
-    Route::prefix('inquiries')->name('inquiries.')->group(function () {
-        Route::get('/', [InquiryController::class, 'index'])->name('index');
-        Route::get('/create', [InquiryController::class, 'create'])->name('create');
-        Route::post('/', [InquiryController::class, 'store'])->name('store');
-        Route::get('/{inquiry}', [InquiryController::class, 'show'])->name('show');
-        Route::put('/{inquiry}', [InquiryController::class, 'update'])->name('update');
-        Route::delete('/{inquiry}', [InquiryController::class, 'destroy'])->name('destroy');
-        Route::post('/{inquiry}/follow-up', [InquiryController::class, 'followUp'])->name('follow-up');
-        Route::get('/sent/teachers', [InquiryController::class, 'sentToTeachers'])->name('sent.teachers');
-        Route::get('/sent/institutes', [InquiryController::class, 'sentToInstitutes'])->name('sent.institutes');
+    // Session Management
+    Route::prefix('sessions')->name('sessions.')->group(function () {
+        Route::get('/', [StudentDashboardController::class, 'sessions'])->name('index');
+        Route::get('/upcoming', [StudentDashboardController::class, 'upcomingSessions'])->name('upcoming');
+        Route::get('/completed', [StudentDashboardController::class, 'completedSessions'])->name('completed');
+        Route::get('/{session}', [StudentDashboardController::class, 'showSession'])->name('show');
+        Route::post('/{session}/book', [StudentDashboardController::class, 'bookSession'])->name('book');
+        Route::post('/{session}/cancel', [StudentDashboardController::class, 'cancelSession'])->name('cancel');
     });
     
-    // Booking & Scheduling Routes
-    Route::prefix('bookings')->name('bookings.')->group(function () {
-        Route::get('/', [BookingController::class, 'index'])->name('index');
-        Route::get('/create/{teacher}', [BookingController::class, 'create'])->name('create');
-        Route::post('/', [BookingController::class, 'store'])->name('store');
-        Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
-        Route::put('/{booking}', [BookingController::class, 'update'])->name('update');
-        Route::delete('/{booking}', [BookingController::class, 'cancel'])->name('cancel');
-        Route::get('/upcoming', [BookingController::class, 'upcoming'])->name('upcoming');
-        Route::get('/past', [BookingController::class, 'past'])->name('past');
-        Route::post('/{booking}/reschedule', [BookingController::class, 'reschedule'])->name('reschedule');
-        Route::post('/{booking}/feedback', [BookingController::class, 'provideFeedback'])->name('feedback');
+    // Teacher Management
+    Route::prefix('teachers')->name('teachers.')->group(function () {
+        Route::get('/', [StudentDashboardController::class, 'teachers'])->name('index');
+        Route::get('/search', [StudentDashboardController::class, 'searchTeachers'])->name('search');
+        Route::get('/{teacher}', [StudentDashboardController::class, 'showTeacher'])->name('show');
+        Route::post('/{teacher}/favorite', [StudentDashboardController::class, 'addTeacherToFavorites'])->name('favorite');
+        Route::delete('/{teacher}/favorite', [StudentDashboardController::class, 'removeTeacherFromFavorites'])->name('unfavorite');
+        Route::post('/{teacher}/inquiry', [StudentDashboardController::class, 'sendInquiry'])->name('inquiry');
     });
     
-    // Favorites & Wishlist Routes
-    Route::prefix('favorites')->name('favorites.')->group(function () {
-        Route::get('/teachers', [StudentDashboardController::class, 'favoriteTeachers'])->name('teachers');
-        Route::get('/institutes', [StudentDashboardController::class, 'favoriteInstitutes'])->name('institutes');
-        Route::post('/teachers/{teacher}', [StudentDashboardController::class, 'addTeacherToFavorites'])->name('teachers.add');
-        Route::delete('/teachers/{teacher}', [StudentDashboardController::class, 'removeTeacherFromFavorites'])->name('teachers.remove');
-        Route::post('/institutes/{institute}', [StudentDashboardController::class, 'addInstituteToFavorites'])->name('institutes.add');
-        Route::delete('/institutes/{institute}', [StudentDashboardController::class, 'removeInstituteFromFavorites'])->name('institutes.remove');
+    // Institute Management
+    Route::prefix('institutes')->name('institutes.')->group(function () {
+        Route::get('/', [StudentDashboardController::class, 'institutes'])->name('index');
+        Route::get('/search', [StudentDashboardController::class, 'searchInstitutes'])->name('search');
+        Route::get('/{institute}', [StudentDashboardController::class, 'showInstitute'])->name('show');
+        Route::post('/{institute}/favorite', [StudentDashboardController::class, 'addInstituteToFavorites'])->name('favorite');
+        Route::delete('/{institute}/favorite', [StudentDashboardController::class, 'removeInstituteFromFavorites'])->name('unfavorite');
+        Route::post('/{institute}/enroll', [StudentDashboardController::class, 'enrollInInstitute'])->name('enroll');
     });
     
-    // Reviews & Ratings Routes
+    // Reviews & Ratings
     Route::prefix('reviews')->name('reviews.')->group(function () {
         Route::get('/', [StudentDashboardController::class, 'myReviews'])->name('index');
         Route::get('/create/{teacher}', [StudentDashboardController::class, 'createTeacherReview'])->name('teachers.create');
@@ -91,7 +83,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         Route::delete('/{review}', [StudentDashboardController::class, 'deleteReview'])->name('destroy');
     });
     
-    // Communication Routes
+    // Communication
     Route::prefix('communication')->name('communication.')->group(function () {
         Route::get('/messages', [StudentDashboardController::class, 'messages'])->name('messages');
         Route::post('/messages', [StudentDashboardController::class, 'sendMessage'])->name('messages.send');
@@ -99,7 +91,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         Route::post('/notifications/mark-read', [StudentDashboardController::class, 'markNotificationsRead'])->name('notifications.mark-read');
     });
     
-    // Settings Routes
+    // Settings
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [StudentDashboardController::class, 'settings'])->name('index');
         Route::get('/preferences', [StudentDashboardController::class, 'learningPreferences'])->name('preferences');

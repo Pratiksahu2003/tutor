@@ -12,36 +12,14 @@ class Permission extends Model
 
     protected $fillable = [
         'name',
-        'slug',
+        'display_name',
         'description',
-        'category',
         'module',
-        'is_active',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        // No casts needed since is_active doesn't exist
     ];
-
-    /**
-     * Boot method to automatically generate slug
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($permission) {
-            if (empty($permission->slug)) {
-                $permission->slug = Str::slug($permission->name);
-            }
-        });
-
-        static::updating(function ($permission) {
-            if ($permission->isDirty('name') && empty($permission->slug)) {
-                $permission->slug = Str::slug($permission->name);
-            }
-        });
-    }
 
     /**
      * Get the roles that have this permission
@@ -49,7 +27,6 @@ class Permission extends Model
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_permissions')
-                    ->withPivot(['granted_at', 'granted_by'])
                     ->withTimestamps();
     }
 
@@ -61,22 +38,6 @@ class Permission extends Model
         return $this->roles()->with('users')->get()
                     ->pluck('users')->flatten()
                     ->unique('id');
-    }
-
-    /**
-     * Scope for active permissions
-     */
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-
-    /**
-     * Scope for permissions by category
-     */
-    public function scopeByCategory($query, $category)
-    {
-        return $query->where('category', $category);
     }
 
     /**

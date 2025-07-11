@@ -1,135 +1,121 @@
 <?php
 
-use App\Http\Controllers\Institute\InstituteDashboardController;
-use App\Http\Controllers\Institute\BranchManagementController;
-use App\Http\Controllers\Institute\TeacherManagementController;
-use App\Http\Controllers\Institute\ProfileController as InstituteProfileController;
-use App\Http\Controllers\Institute\AnalyticsController as InstituteAnalyticsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Institute\InstituteDashboardController;
 
 /*
 |--------------------------------------------------------------------------
 | Institute Routes
 |--------------------------------------------------------------------------
 |
-| All institute-related routes with proper middleware protection
+| Here is where you can register institute-specific routes for your application.
+| These routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "institute" middleware group.
 |
 */
 
 Route::middleware(['auth', 'role:institute'])->prefix('institute')->name('institute.')->group(function () {
+    // Redirect old dashboard routes to unified dashboard
+    Route::get('/dashboard', function () {
+        return redirect()->route('dashboard');
+    })->name('dashboard');
     
-    // Dashboard Routes
-    Route::get('/dashboard', [InstituteDashboardController::class, 'index'])->name('dashboard');
+    // API routes for unified dashboard
     Route::get('/api/stats', [InstituteDashboardController::class, 'getStats'])->name('api.stats');
     Route::get('/api/recent-activity', [InstituteDashboardController::class, 'getRecentActivity'])->name('api.activity');
     
-    // Profile Management Routes
+    // Profile Management
     Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [InstituteProfileController::class, 'show'])->name('show');
-        Route::get('/edit', [InstituteProfileController::class, 'edit'])->name('edit');
-        Route::put('/', [InstituteProfileController::class, 'update'])->name('update');
-        Route::post('/logo', [InstituteProfileController::class, 'updateLogo'])->name('logo.update');
-        Route::post('/gallery', [InstituteProfileController::class, 'addGalleryImage'])->name('gallery.add');
-        Route::delete('/gallery/{image}', [InstituteProfileController::class, 'removeGalleryImage'])->name('gallery.remove');
+        Route::get('/', [InstituteDashboardController::class, 'profile'])->name('index');
+        Route::put('/', [InstituteDashboardController::class, 'updateProfile'])->name('update');
+        Route::post('/logo', [InstituteDashboardController::class, 'updateLogo'])->name('logo');
+        Route::delete('/logo', [InstituteDashboardController::class, 'removeLogo'])->name('logo.remove');
+        Route::post('/documents', [InstituteDashboardController::class, 'uploadDocuments'])->name('documents');
+        Route::delete('/documents/{document}', [InstituteDashboardController::class, 'deleteDocument'])->name('documents.delete');
     });
     
-    // Teacher Management Routes
-    Route::prefix('teachers')->name('teachers.')->group(function () {
-        Route::get('/', [TeacherManagementController::class, 'index'])->name('index');
-        Route::get('/create', [TeacherManagementController::class, 'create'])->name('create');
-        Route::post('/', [TeacherManagementController::class, 'store'])->name('store');
-        Route::get('/{teacher}', [TeacherManagementController::class, 'show'])->name('show');
-        Route::get('/{teacher}/edit', [TeacherManagementController::class, 'edit'])->name('edit');
-        Route::put('/{teacher}', [TeacherManagementController::class, 'update'])->name('update');
-        Route::delete('/{teacher}', [TeacherManagementController::class, 'destroy'])->name('destroy');
-        
-        // Teacher Actions
-        Route::post('/{teacher}/verify', [TeacherManagementController::class, 'verify'])->name('verify');
-        Route::post('/{teacher}/unverify', [TeacherManagementController::class, 'unverify'])->name('unverify');
-        Route::post('/{teacher}/suspend', [TeacherManagementController::class, 'suspend'])->name('suspend');
-        Route::post('/{teacher}/activate', [TeacherManagementController::class, 'activate'])->name('activate');
-        
-        // Bulk Actions
-        Route::post('/bulk/verify', [TeacherManagementController::class, 'bulkVerify'])->name('bulk.verify');
-        Route::post('/bulk/suspend', [TeacherManagementController::class, 'bulkSuspend'])->name('bulk.suspend');
-        Route::post('/bulk/delete', [TeacherManagementController::class, 'bulkDelete'])->name('bulk.delete');
-        
-        // Applications & Invitations
-        Route::get('/applications/pending', [TeacherManagementController::class, 'pendingApplications'])->name('applications.pending');
-        Route::post('/applications/{application}/approve', [TeacherManagementController::class, 'approveApplication'])->name('applications.approve');
-        Route::post('/applications/{application}/reject', [TeacherManagementController::class, 'rejectApplication'])->name('applications.reject');
-        Route::get('/invite', [TeacherManagementController::class, 'inviteForm'])->name('invite.form');
-        Route::post('/invite', [TeacherManagementController::class, 'sendInvitation'])->name('invite.send');
-    });
-    
-    // Branch Management System
+    // Branch Management
     Route::prefix('branches')->name('branches.')->group(function () {
-        // Branch CRUD operations
-        Route::get('/', [BranchManagementController::class, 'index'])->name('index');
-        Route::get('/create', [BranchManagementController::class, 'create'])->name('create');
-        Route::post('/', [BranchManagementController::class, 'store'])->name('store');
-        Route::get('/{branch}', [BranchManagementController::class, 'show'])->name('show');
-        Route::get('/{branch}/edit', [BranchManagementController::class, 'edit'])->name('edit');
-        Route::put('/{branch}', [BranchManagementController::class, 'update'])->name('update');
-        Route::delete('/{branch}', [BranchManagementController::class, 'destroy'])->name('destroy');
-        
-        // Branch Teacher Management
-        Route::post('/{branch}/teachers/assign', [BranchManagementController::class, 'assignTeacher'])->name('teachers.assign');
-        Route::delete('/{branch}/teachers/{teacher}', [BranchManagementController::class, 'removeTeacher'])->name('teachers.remove');
-        Route::post('/{branch}/teachers/{teacher}/transfer', [BranchManagementController::class, 'transferTeacher'])->name('teachers.transfer');
-        Route::post('/{branch}/teachers/{teacher}/verify', [BranchManagementController::class, 'verifyBranchTeacher'])->name('teachers.verify');
-        Route::post('/{branch}/teachers/{teacher}/promote', [BranchManagementController::class, 'promoteTeacher'])->name('teachers.promote');
-        Route::post('/{branch}/teachers/{teacher}/demote', [BranchManagementController::class, 'demoteTeacher'])->name('teachers.demote');
-        
-        // Branch Settings
-        Route::get('/{branch}/settings', [BranchManagementController::class, 'settings'])->name('settings');
-        Route::put('/{branch}/settings', [BranchManagementController::class, 'updateSettings'])->name('settings.update');
-        Route::post('/{branch}/activate', [BranchManagementController::class, 'activate'])->name('activate');
-        Route::post('/{branch}/deactivate', [BranchManagementController::class, 'deactivate'])->name('deactivate');
-        
-        // API endpoints for branch data
-        Route::get('/api/tree', [BranchManagementController::class, 'getBranchTree'])->name('api.tree');
-        Route::get('/api/{branch}/stats', [BranchManagementController::class, 'getBranchStats'])->name('api.stats');
+        Route::get('/', [InstituteDashboardController::class, 'branches'])->name('index');
+        Route::get('/create', [InstituteDashboardController::class, 'createBranch'])->name('create');
+        Route::post('/', [InstituteDashboardController::class, 'storeBranch'])->name('store');
+        Route::get('/{branch}', [InstituteDashboardController::class, 'showBranch'])->name('show');
+        Route::get('/{branch}/edit', [InstituteDashboardController::class, 'editBranch'])->name('edit');
+        Route::put('/{branch}', [InstituteDashboardController::class, 'updateBranch'])->name('update');
+        Route::delete('/{branch}', [InstituteDashboardController::class, 'deleteBranch'])->name('delete');
+        Route::get('/{branch}/teachers', [InstituteDashboardController::class, 'branchTeachers'])->name('teachers');
+        Route::get('/{branch}/students', [InstituteDashboardController::class, 'branchStudents'])->name('students');
+        Route::get('/{branch}/sessions', [InstituteDashboardController::class, 'branchSessions'])->name('sessions');
     });
     
-    // Students Management Routes
+    // Teacher Management
+    Route::prefix('teachers')->name('teachers.')->group(function () {
+        Route::get('/', [InstituteDashboardController::class, 'teachers'])->name('index');
+        Route::get('/create', [InstituteDashboardController::class, 'createTeacher'])->name('create');
+        Route::post('/', [InstituteDashboardController::class, 'storeTeacher'])->name('store');
+        Route::get('/{teacher}', [InstituteDashboardController::class, 'showTeacher'])->name('show');
+        Route::get('/{teacher}/edit', [InstituteDashboardController::class, 'editTeacher'])->name('edit');
+        Route::put('/{teacher}', [InstituteDashboardController::class, 'updateTeacher'])->name('update');
+        Route::delete('/{teacher}', [InstituteDashboardController::class, 'deleteTeacher'])->name('delete');
+        Route::get('/{teacher}/performance', [InstituteDashboardController::class, 'teacherPerformance'])->name('performance');
+        Route::get('/{teacher}/sessions', [InstituteDashboardController::class, 'teacherSessions'])->name('sessions');
+    });
+    
+    // Subject Management
+    Route::prefix('subjects')->name('subjects.')->group(function () {
+        Route::get('/', [InstituteDashboardController::class, 'subjects'])->name('index');
+        Route::get('/create', [InstituteDashboardController::class, 'createSubject'])->name('create');
+        Route::post('/', [InstituteDashboardController::class, 'storeSubject'])->name('store');
+        Route::get('/{subject}', [InstituteDashboardController::class, 'showSubject'])->name('show');
+        Route::get('/{subject}/edit', [InstituteDashboardController::class, 'editSubject'])->name('edit');
+        Route::put('/{subject}', [InstituteDashboardController::class, 'updateSubject'])->name('update');
+        Route::delete('/{subject}', [InstituteDashboardController::class, 'deleteSubject'])->name('delete');
+    });
+    
+    // Exam Type Management
+    Route::prefix('exam-types')->name('exam-types.')->group(function () {
+        Route::get('/', [InstituteDashboardController::class, 'examTypes'])->name('index');
+        Route::get('/create', [InstituteDashboardController::class, 'createExamType'])->name('create');
+        Route::post('/', [InstituteDashboardController::class, 'storeExamType'])->name('store');
+        Route::get('/{examType}', [InstituteDashboardController::class, 'showExamType'])->name('show');
+        Route::get('/{examType}/edit', [InstituteDashboardController::class, 'editExamType'])->name('edit');
+        Route::put('/{examType}', [InstituteDashboardController::class, 'updateExamType'])->name('update');
+        Route::delete('/{examType}', [InstituteDashboardController::class, 'deleteExamType'])->name('delete');
+    });
+    
+    // Student Management
     Route::prefix('students')->name('students.')->group(function () {
         Route::get('/', [InstituteDashboardController::class, 'students'])->name('index');
         Route::get('/{student}', [InstituteDashboardController::class, 'showStudent'])->name('show');
-        Route::get('/inquiries/pending', [InstituteDashboardController::class, 'pendingInquiries'])->name('inquiries.pending');
-        Route::post('/inquiries/{inquiry}/respond', [InstituteDashboardController::class, 'respondToInquiry'])->name('inquiries.respond');
+        Route::get('/{student}/progress', [InstituteDashboardController::class, 'studentProgress'])->name('progress');
+        Route::get('/{student}/sessions', [InstituteDashboardController::class, 'studentSessions'])->name('sessions');
     });
     
-    // Analytics & Reports Routes
+    // Analytics & Reports
     Route::prefix('analytics')->name('analytics.')->group(function () {
-        Route::get('/', [InstituteAnalyticsController::class, 'index'])->name('index');
-        Route::get('/teachers', [InstituteAnalyticsController::class, 'teacherAnalytics'])->name('teachers');
-        Route::get('/branches', [InstituteAnalyticsController::class, 'branchAnalytics'])->name('branches');
-        Route::get('/students', [InstituteAnalyticsController::class, 'studentAnalytics'])->name('students');
-        Route::get('/performance', [InstituteAnalyticsController::class, 'performanceMetrics'])->name('performance');
-        Route::get('/financial', [InstituteAnalyticsController::class, 'financialReports'])->name('financial');
-        Route::get('/export/teachers', [InstituteAnalyticsController::class, 'exportTeachers'])->name('export.teachers');
-        Route::get('/export/students', [InstituteAnalyticsController::class, 'exportStudents'])->name('export.students');
+        Route::get('/', [InstituteDashboardController::class, 'analytics'])->name('index');
+        Route::get('/revenue', [InstituteDashboardController::class, 'revenueReport'])->name('revenue');
+        Route::get('/branch-performance', [InstituteDashboardController::class, 'branchPerformance'])->name('branch-performance');
+        Route::get('/teacher-performance', [InstituteDashboardController::class, 'teacherPerformance'])->name('teacher-performance');
+        Route::get('/student-enrollment', [InstituteDashboardController::class, 'studentEnrollment'])->name('student-enrollment');
     });
     
-    // Settings Routes
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [InstituteDashboardController::class, 'settings'])->name('index');
-        Route::get('/general', [InstituteDashboardController::class, 'generalSettings'])->name('general');
-        Route::put('/general', [InstituteDashboardController::class, 'updateGeneralSettings'])->name('general.update');
-        Route::get('/notifications', [InstituteDashboardController::class, 'notificationSettings'])->name('notifications');
-        Route::put('/notifications', [InstituteDashboardController::class, 'updateNotificationSettings'])->name('notifications.update');
-        Route::get('/security', [InstituteDashboardController::class, 'securitySettings'])->name('security');
-        Route::put('/security', [InstituteDashboardController::class, 'updateSecuritySettings'])->name('security.update');
-    });
-    
-    // Communication Routes
+    // Communication
     Route::prefix('communication')->name('communication.')->group(function () {
         Route::get('/messages', [InstituteDashboardController::class, 'messages'])->name('messages');
         Route::post('/messages', [InstituteDashboardController::class, 'sendMessage'])->name('messages.send');
-        Route::get('/announcements', [InstituteDashboardController::class, 'announcements'])->name('announcements');
-        Route::post('/announcements', [InstituteDashboardController::class, 'createAnnouncement'])->name('announcements.create');
         Route::get('/notifications', [InstituteDashboardController::class, 'notifications'])->name('notifications');
         Route::post('/notifications/mark-read', [InstituteDashboardController::class, 'markNotificationsRead'])->name('notifications.mark-read');
+    });
+    
+    // Settings
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [InstituteDashboardController::class, 'settings'])->name('index');
+        Route::get('/preferences', [InstituteDashboardController::class, 'preferences'])->name('preferences');
+        Route::put('/preferences', [InstituteDashboardController::class, 'updatePreferences'])->name('preferences.update');
+        Route::get('/notifications', [InstituteDashboardController::class, 'notificationSettings'])->name('notifications');
+        Route::put('/notifications', [InstituteDashboardController::class, 'updateNotificationSettings'])->name('notifications.update');
+        Route::get('/privacy', [InstituteDashboardController::class, 'privacySettings'])->name('privacy');
+        Route::put('/privacy', [InstituteDashboardController::class, 'updatePrivacySettings'])->name('privacy.update');
     });
 }); 
