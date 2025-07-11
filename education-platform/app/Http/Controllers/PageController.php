@@ -62,7 +62,7 @@ class PageController extends Controller
             }
 
             if ($request->filled('difficulty')) {
-                $query->where('difficulty_level', $request->difficulty);
+                $query->where('difficulty', $request->difficulty);
             }
 
             if ($request->filled('search')) {
@@ -101,10 +101,10 @@ class PageController extends Controller
                 'generalFaqs' => $generalFaqs,
                 'faqQuestions' => $faqQuestions,
                 'totalQuestions' => $questions->count(),
-                'subjects' => Subject::where('status', 'active')->orderBy('name')->get(),
+                'subjects' => Subject::where('is_active', true)->orderBy('name')->get(),
                 'stats' => [
                     'total_questions' => $questions->count(),
-                    'total_subjects' => Subject::where('status', 'active')->count(),
+                    'total_subjects' => Subject::where('is_active', true)->count(),
                     'faq_questions' => $generalFaqs->count(),
                 ]
             ];
@@ -131,7 +131,7 @@ class PageController extends Controller
         }
 
         if ($request->filled('difficulty') && $request->difficulty !== 'all') {
-            $query->where('difficulty_level', $request->difficulty);
+            $query->where('difficulty', $request->difficulty);
         }
 
         if ($request->filled('search')) {

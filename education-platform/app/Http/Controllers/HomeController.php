@@ -56,7 +56,7 @@ class HomeController extends Controller
             'total_students' => User::where('role', 'student')->count(),
             'verified_teachers' => TeacherProfile::where('verification_status', 'verified')->count(),
             'active_institutes' => Institute::where('verification_status', 'verified')->count(),
-            'total_subjects' => Subject::where('status', 'active')->count(),
+            'total_subjects' => Subject::where('is_active', true)->count(),
             'total_questions' => Question::where('status', 'published')->count(),
         ];
     }
@@ -143,7 +143,7 @@ class HomeController extends Controller
                     ->where('users.is_active', true)
                     ->selectRaw('count(*)');
             }, 'teachers_count')
-            ->where('status', 'active')
+            ->where('is_active', true)
             ->orderByDesc('teachers_count')
             ->take(12)
             ->get()
@@ -179,7 +179,7 @@ class HomeController extends Controller
                     'id' => $question->id,
                     'title' => $question->title ?: Str::limit($question->question_text, 50),
                     'subject' => $question->subject->name ?? 'General',
-                    'difficulty' => $question->difficulty_level,
+                    'difficulty' => $question->difficulty,
                     'usage_count' => $question->usage_count,
                     'created_at' => $question->created_at->diffForHumans(),
                 ];
@@ -291,25 +291,25 @@ class HomeController extends Controller
         $suggestions = Cache::remember("search.suggestions.{$query}", 1800, function () use ($query) {
             // Teachers
             $teachers = TeacherProfile::with(['user', 'subject'])
-                ->whereHas('user', function($q) use ($query) {
+                                ->whereHas('user', function($q) use ($query) {
                     $q->where('name', 'like', "%{$query}%")
                       ->where('is_active', true);
-                })
+                                })
                 ->where('verification_status', 'verified')
                 ->whereNotNull('subject_id')
-                ->take(5)
-                ->get()
-                ->map(function($teacher) {
-                    return [
-                        'type' => 'teacher',
-                        'title' => $teacher->user->name ?? 'N/A',
+                                ->take(5)
+                                ->get()
+                                ->map(function($teacher) {
+                                    return [
+                                        'type' => 'teacher',
+                                        'title' => $teacher->user->name ?? 'N/A',
                         'subtitle' => ($teacher->subject->name ?? $teacher->specialization ?? 'General') . ' Teacher',
                         'url' => route('teachers.show', $teacher->slug ?: 'teacher-' . $teacher->id),
                         'avatar' => $teacher->avatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($teacher->user->name ?? 'Teacher') . '&size=200&background=random',
                         'rating' => $teacher->rating ?? 4.0,
                         'location' => trim(($teacher->city ?? '') . ', ' . ($teacher->state ?? ''), ', ') ?: null,
-                    ];
-                });
+                                    ];
+                                });
 
             // Institutes
             $institutes = Institute::with('user')
@@ -321,11 +321,11 @@ class HomeController extends Controller
                 ->whereHas('user', function($q) {
                     $q->where('is_active', true);
                 })
-                ->take(5)
-                ->get()
-                ->map(function($institute) {
-                    return [
-                        'type' => 'institute',
+                               ->take(5)
+                               ->get()
+                               ->map(function($institute) {
+                                   return [
+                                       'type' => 'institute',
                         'title' => $institute->institute_name,
                         'subtitle' => ($institute->institute_type ?? 'Institute') . ' • ' . trim(($institute->city ?? '') . ', ' . ($institute->state ?? ''), ', '),
                         'url' => route('institutes.show', $institute->slug ?: 'institute-' . $institute->id),
@@ -337,7 +337,7 @@ class HomeController extends Controller
 
             // Subjects
             $subjects = Subject::where('name', 'like', "%{$query}%")
-                ->where('status', 'active')
+                ->where('is_active', true)
                 ->take(3)
                 ->get()
                 ->map(function($subject) {
@@ -348,8 +348,8 @@ class HomeController extends Controller
                         'url' => route('teachers.index', ['subject' => $subject->slug]),
                         'avatar' => null,
                         'icon' => $this->getSubjectIcon($subject->name),
-                    ];
-                });
+                                   ];
+                               });
 
             return $teachers->concat($institutes)->concat($subjects)->take(10);
         });

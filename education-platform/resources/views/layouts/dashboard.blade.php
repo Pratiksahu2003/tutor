@@ -865,7 +865,7 @@
                 </div>
 
                 <div class="nav-item">
-                    <a href="{{ route('search') }}" class="nav-link {{ request()->routeIs('search') ? 'active' : '' }}">
+                    <a href="{{ route('search.index') }}" class="nav-link {{ request()->routeIs('search.index') ? 'active' : '' }}">
                         <i class="bi bi-search-heart"></i>
                         <span>Advanced Search</span>
                     </a>

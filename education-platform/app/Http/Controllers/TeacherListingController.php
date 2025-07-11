@@ -318,7 +318,7 @@ class TeacherListingController extends Controller
     {
         return Cache::remember('teacher_filter_options', 3600, function() {
             return [
-                'subjects' => Subject::where('status', 'active')
+                'subjects' => Subject::where('is_active', true)
                     ->withCount(['teacherProfiles' => function($query) {
                         $query->where('verification_status', 'verified')
                               ->whereHas('user', function($q) {

@@ -98,7 +98,7 @@ class SearchController extends Controller
             
             // Search subjects
             if ($type === 'all' || $type === 'subjects') {
-                $results['subjects'] = Subject::where('status', 'active')
+                $results['subjects'] = Subject::where('is_active', true)
                     ->where('name', 'like', "%{$searchTerm}%")
                     ->take(6)
                     ->get()
@@ -123,7 +123,7 @@ class SearchController extends Controller
             'type' => $type,
             'location' => $location,
             'totalResults' => $totalResults,
-            'popularSubjects' => Subject::where('status', 'active')->take(12)->get(),
+            'popularSubjects' => Subject::where('is_active', true)->take(12)->get(),
             'popularCities' => $this->getPopularCities(),
         ]);
     }

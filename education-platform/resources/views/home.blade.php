@@ -41,7 +41,7 @@
                             </p>
                             
                             <div class="hero-search-box">
-                                <form action="{{ route('search') }}" method="GET" class="search-form-modern">
+                                <form action="{{ route('search.index') }}" method="GET" class="search-form-modern">
                                     <div class="search-input-group">
                                         <div class="search-field">
                                             <i class="fas fa-search search-icon"></i>
