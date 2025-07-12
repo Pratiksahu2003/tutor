@@ -68,6 +68,26 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/dashboard/profile', [UnifiedDashboardController::class, 'updateProfile'])->name('dashboard.profile.update');
     Route::post('/dashboard/password', [UnifiedDashboardController::class, 'updatePassword'])->name('dashboard.password.update');
     Route::get('/profile', [UnifiedDashboardController::class, 'profile'])->name('profile.edit');
+    
+    // Complete Profile Management Routes
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [UnifiedDashboardController::class, 'profile'])->name('edit');
+        Route::put('/', [UnifiedDashboardController::class, 'updateProfile'])->name('update');
+        Route::put('/password', [UnifiedDashboardController::class, 'updatePassword'])->name('password.update');
+        Route::delete('/', [UnifiedDashboardController::class, 'deleteProfile'])->name('destroy');
+        Route::post('/avatar', [UnifiedDashboardController::class, 'updateAvatar'])->name('avatar.update');
+        Route::post('/verification', [UnifiedDashboardController::class, 'submitVerification'])->name('verification.submit');
+        Route::get('/verification', [UnifiedDashboardController::class, 'verificationForm'])->name('verification.form');
+        Route::get('/preferences', [UnifiedDashboardController::class, 'preferences'])->name('preferences');
+        Route::put('/preferences', [UnifiedDashboardController::class, 'updatePreferences'])->name('preferences.update');
+        Route::get('/security', [UnifiedDashboardController::class, 'security'])->name('security');
+        Route::post('/two-factor', [UnifiedDashboardController::class, 'enableTwoFactor'])->name('two-factor.enable');
+        Route::delete('/two-factor', [UnifiedDashboardController::class, 'disableTwoFactor'])->name('two-factor.disable');
+        Route::get('/sessions', [UnifiedDashboardController::class, 'sessions'])->name('sessions');
+        Route::delete('/sessions/{session}', [UnifiedDashboardController::class, 'destroySession'])->name('sessions.destroy');
+        Route::get('/notifications', [UnifiedDashboardController::class, 'notifications'])->name('notifications');
+        Route::put('/notifications', [UnifiedDashboardController::class, 'updateNotifications'])->name('notifications.update');
+    });
 });
 
 // Unified Dashboard Routes
@@ -104,6 +124,4 @@ require __DIR__.'/institute.php';
 require __DIR__.'/admin.php';
 
 // Admin Analytics Route
-Route::get('/admin/analytics', function() {
-    return view('admin.analytics.index');
-})->name('admin.analytics.index');
+Route::get('/admin/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics.index');

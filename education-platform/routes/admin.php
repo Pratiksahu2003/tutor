@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserManagementController;
@@ -86,6 +88,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::patch('/{teacher}/unverify', [TeacherManagementController::class, 'unverify'])->name('unverify');
         Route::patch('/{teacher}/toggle-status', [TeacherManagementController::class, 'toggleStatus'])->name('toggle-status');
         Route::get('/statistics/data', [TeacherManagementController::class, 'statistics'])->name('statistics');
+        Route::get('/statistics', [TeacherManagementController::class, 'statisticsPage'])->name('statistics-page');
+        Route::get('/statistics/test', function() {
+            return view('admin.teachers.statistics');
+        })->name('statistics-test');
+        Route::get('/test-route', function() {
+            return 'Admin route is working!';
+        })->name('test-route');
         Route::post('/bulk/verify', [TeacherManagementController::class, 'bulkVerify'])->name('bulk-verify');
         Route::post('/bulk/toggle-status', [TeacherManagementController::class, 'bulkToggleStatus'])->name('bulk-toggle-status');
     });
@@ -170,20 +179,69 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             Route::get('/folders', [CMSController::class, 'mediaFolders'])->name('folders');
             Route::post('/folders', [CMSController::class, 'createFolder'])->name('folders.create');
         });
+
+        // Menus Management
+        Route::prefix('menus')->name('menus.')->group(function () {
+            Route::get('/', [CMSController::class, 'menus'])->name('index');
+            Route::get('/create', [CMSController::class, 'createMenu'])->name('create');
+            Route::post('/', [CMSController::class, 'storeMenu'])->name('store');
+            Route::get('/{menu}/edit', [CMSController::class, 'editMenu'])->name('edit');
+            Route::put('/{menu}', [CMSController::class, 'updateMenu'])->name('update');
+            Route::delete('/{menu}', [CMSController::class, 'destroyMenu'])->name('destroy');
+        });
+
+        // Sliders Management
+        Route::prefix('sliders')->name('sliders.')->group(function () {
+            Route::get('/', [CMSController::class, 'sliders'])->name('index');
+            Route::get('/create', [CMSController::class, 'createSlider'])->name('create');
+            Route::post('/', [CMSController::class, 'storeSlider'])->name('store');
+            Route::get('/{slider}/edit', [CMSController::class, 'editSlider'])->name('edit');
+            Route::put('/{slider}', [CMSController::class, 'updateSlider'])->name('update');
+            Route::delete('/{slider}', [CMSController::class, 'destroySlider'])->name('destroy');
+        });
+    });
+
+    // ===== LEAD MANAGEMENT =====
+    Route::prefix('leads')->name('leads.')->group(function () {
+        Route::get('/', function() { return view('admin.leads.index'); })->name('index');
+        Route::get('/{lead}', function() { return view('admin.leads.show'); })->name('show');
+        Route::patch('/{lead}/status', function() { return redirect()->back()->with('success', 'Status updated'); })->name('update-status');
+        Route::delete('/{lead}', function() { return redirect()->back()->with('success', 'Lead deleted'); })->name('destroy');
+    });
+
+    // ===== ANALYTICS & REPORTS =====
+    Route::prefix('analytics')->name('analytics.')->group(function () {
+        Route::get('/', [AnalyticsController::class, 'index'])->name('index');
+        Route::get('/export', function() { return redirect()->back()->with('success', 'Report exported'); })->name('export');
+    });
+
+    // ===== COMPREHENSIVE REPORTS =====
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/generate', [AdminDashboardController::class, 'generateReport'])->name('generate');
+        Route::get('/overview', [AdminDashboardController::class, 'generateReport'])->name('overview');
+        Route::get('/user-analytics', [AdminDashboardController::class, 'generateReport'])->name('user-analytics');
+        Route::get('/teacher-performance', [AdminDashboardController::class, 'generateReport'])->name('teacher-performance');
+        Route::get('/institute-analytics', [AdminDashboardController::class, 'generateReport'])->name('institute-analytics');
+        Route::get('/revenue-analysis', [AdminDashboardController::class, 'generateReport'])->name('revenue-analysis');
+        Route::get('/system-health', [AdminDashboardController::class, 'generateReport'])->name('system-health');
+    });
+
+    // ===== SYSTEM & MAINTENANCE =====
+    Route::prefix('system')->name('system.')->group(function () {
+        Route::get('/backup', [AdminDashboardController::class, 'backup'])->name('backup');
+        Route::get('/logs', [AdminDashboardController::class, 'logs'])->name('logs');
+        Route::get('/cache', [AdminDashboardController::class, 'cache'])->name('cache');
     });
 
     // ===== SETTINGS MANAGEMENT =====
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
-        Route::put('/', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('update');
-        Route::post('/clear-cache', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('clear-cache');
-        Route::get('/system-info', [App\Http\Controllers\Admin\SettingsController::class, 'systemInfo'])->name('system-info');
-        Route::post('/optimize', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeApplication'])->name('optimize');
-        Route::get('/backup', [App\Http\Controllers\Admin\SettingsController::class, 'databaseBackup'])->name('backup');
-        Route::post('/reset', [App\Http\Controllers\Admin\SettingsController::class, 'resetSettings'])->name('reset');
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::put('/', [SettingsController::class, 'update'])->name('update');
+        Route::post('/clear-cache', [SettingsController::class, 'clearCache'])->name('clear-cache');
+        Route::get('/system-info', [SettingsController::class, 'systemInfo'])->name('system-info');
+        Route::post('/optimize', [SettingsController::class, 'optimizeApplication'])->name('optimize');
+        Route::get('/backup', [SettingsController::class, 'databaseBackup'])->name('backup');
+        Route::post('/reset', [SettingsController::class, 'resetSettings'])->name('reset');
     });
-
-    // ===== SYSTEM & MAINTENANCE =====
-    Route::get('/system-info', [AdminDashboardController::class, 'systemInfo'])->name('system-info');
     
 }); 

@@ -309,21 +309,163 @@ class TeacherManagementController extends Controller
     }
 
     /**
-     * Get teacher statistics
+     * Display teacher statistics page
      */
-    public function statistics()
+    public function statisticsPage()
     {
+        return view('admin.teachers.statistics');
+    }
+
+    /**
+     * Get comprehensive teacher statistics with filters
+     */
+    public function statistics(Request $request)
+    {
+        // If it's a direct request (not AJAX), return the view
+        if (!$request->ajax() && !$request->has('export')) {
+            return view('admin.teachers.statistics-data');
+        }
+
+        $query = User::with(['teacherProfile'])
+            ->where('role', 'teacher');
+
+        // Apply filters
+        if ($request->filled('date_range')) {
+            $dates = explode(' to ', $request->date_range);
+            if (count($dates) == 2) {
+                $query->whereBetween('created_at', [$dates[0], $dates[1]]);
+            }
+        }
+
+        if ($request->filled('city')) {
+            $query->where('city', $request->city);
+        }
+
+        if ($request->filled('verified')) {
+            $query->whereHas('teacherProfile', function ($q) use ($request) {
+                $q->where('verified', $request->verified === 'true');
+            });
+        }
+
+        if ($request->filled('teaching_mode')) {
+            $query->whereHas('teacherProfile', function ($q) use ($request) {
+                $q->where('teaching_mode', $request->teaching_mode);
+            });
+        }
+
+        if ($request->filled('experience_range')) {
+            $range = explode('-', $request->experience_range);
+            if (count($range) == 2) {
+                $query->whereHas('teacherProfile', function ($q) use ($range) {
+                    $q->whereBetween('experience_years', [$range[0], $range[1]]);
+                });
+            }
+        }
+
+        // Get filtered data
+        $teachers = $query->get();
+
+        // Calculate statistics
         $stats = [
-            'total_teachers' => User::where('role', 'teacher')->count(),
-            'active_teachers' => User::where('role', 'teacher')->where('is_active', true)->count(),
-            'verified_teachers' => TeacherProfile::where('verified', true)->count(),
-            'unverified_teachers' => TeacherProfile::where('verified', false)->count(),
-            'online_teachers' => TeacherProfile::where('teaching_mode', 'online')->count(),
-            'offline_teachers' => TeacherProfile::where('teaching_mode', 'offline')->count(),
-            'both_mode_teachers' => TeacherProfile::where('teaching_mode', 'both')->count(),
+            'total_teachers' => $teachers->count(),
+            'active_teachers' => $teachers->where('is_active', true)->count(),
+            'verified_teachers' => $teachers->where('teacherProfile.verified', true)->count(),
+            'unverified_teachers' => $teachers->where('teacherProfile.verified', false)->count(),
+            'online_teachers' => $teachers->where('teacherProfile.teaching_mode', 'online')->count(),
+            'offline_teachers' => $teachers->where('teacherProfile.teaching_mode', 'offline')->count(),
+            'both_mode_teachers' => $teachers->where('teacherProfile.teaching_mode', 'both')->count(),
+            'avg_experience' => $teachers->where('teacherProfile.experience_years', '>', 0)->avg('teacherProfile.experience_years') ?? 0,
+            'avg_hourly_rate' => $teachers->where('teacherProfile.hourly_rate', '>', 0)->avg('teacherProfile.hourly_rate') ?? 0,
+            'total_students' => $teachers->sum('teacherProfile.total_students'),
+            'avg_rating' => $teachers->where('teacherProfile.rating', '>', 0)->avg('teacherProfile.rating') ?? 0,
         ];
 
-        return response()->json($stats);
+        // Monthly registration trend (last 12 months)
+        $monthlyTrend = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $count = User::where('role', 'teacher')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $monthlyTrend[] = [
+                'month' => $date->format('M Y'),
+                'count' => $count
+            ];
+        }
+
+        // City-wise distribution
+        $cityDistribution = $teachers->groupBy('city')
+            ->map(function ($group) {
+                return $group->count();
+            })
+            ->sortDesc()
+            ->take(10);
+
+        // Experience level distribution
+        $experienceDistribution = [
+            '0-2 years' => $teachers->where('teacherProfile.experience_years', '<=', 2)->count(),
+            '3-5 years' => $teachers->whereBetween('teacherProfile.experience_years', [3, 5])->count(),
+            '6-10 years' => $teachers->whereBetween('teacherProfile.experience_years', [6, 10])->count(),
+            '11-15 years' => $teachers->whereBetween('teacherProfile.experience_years', [11, 15])->count(),
+            '15+ years' => $teachers->where('teacherProfile.experience_years', '>', 15)->count(),
+        ];
+
+        // Hourly rate distribution
+        $rateDistribution = [
+            '₹0-500' => $teachers->where('teacherProfile.hourly_rate', '<=', 500)->count(),
+            '₹501-1000' => $teachers->whereBetween('teacherProfile.hourly_rate', [501, 1000])->count(),
+            '₹1001-2000' => $teachers->whereBetween('teacherProfile.hourly_rate', [1001, 2000])->count(),
+            '₹2001-5000' => $teachers->whereBetween('teacherProfile.hourly_rate', [2001, 5000])->count(),
+            '₹5000+' => $teachers->where('teacherProfile.hourly_rate', '>', 5000)->count(),
+        ];
+
+        // Rating distribution
+        $ratingDistribution = [
+            '5.0' => $teachers->where('teacherProfile.rating', 5.0)->count(),
+            '4.5-4.9' => $teachers->whereBetween('teacherProfile.rating', [4.5, 4.9])->count(),
+            '4.0-4.4' => $teachers->whereBetween('teacherProfile.rating', [4.0, 4.4])->count(),
+            '3.5-3.9' => $teachers->whereBetween('teacherProfile.rating', [3.5, 3.9])->count(),
+            '3.0-3.4' => $teachers->whereBetween('teacherProfile.rating', [3.0, 3.4])->count(),
+            'Below 3.0' => $teachers->where('teacherProfile.rating', '<', 3.0)->count(),
+        ];
+
+        // Top performing teachers
+        $topTeachers = $teachers->sortByDesc('teacherProfile.rating')
+            ->take(10)
+            ->map(function ($teacher) {
+                return [
+                    'name' => $teacher->name,
+                    'rating' => $teacher->teacherProfile->rating ?? 0,
+                    'students' => $teacher->teacherProfile->total_students ?? 0,
+                    'experience' => $teacher->teacherProfile->experience_years ?? 0,
+                    'city' => $teacher->city,
+                ];
+            });
+
+        // Recent activity
+        $recentActivity = $teachers->sortByDesc('created_at')
+            ->take(10)
+            ->map(function ($teacher) {
+                return [
+                    'name' => $teacher->name,
+                    'action' => 'Registered',
+                    'date' => $teacher->created_at->format('M d, Y'),
+                    'verified' => $teacher->teacherProfile->verified ?? false,
+                ];
+            });
+
+        return response()->json([
+            'stats' => $stats,
+            'monthly_trend' => $monthlyTrend,
+            'city_distribution' => $cityDistribution,
+            'experience_distribution' => $experienceDistribution,
+            'rate_distribution' => $rateDistribution,
+            'rating_distribution' => $ratingDistribution,
+            'top_teachers' => $topTeachers,
+            'recent_activity' => $recentActivity,
+            'filters_applied' => $request->only(['date_range', 'city', 'verified', 'teaching_mode', 'experience_range']),
+        ]);
     }
 
     /**

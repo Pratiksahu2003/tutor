@@ -112,11 +112,11 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
                                 <i class="bi bi-file-earmark-text text-success" style="font-size: 3rem;"></i>
-                                <h6 class="mt-3">Generate Reports</h6>
-                                <p class="text-muted small">Create and download detailed reports</p>
-                                <button class="btn btn-success btn-sm" onclick="generateReport()">
-                                    <i class="bi bi-download me-1"></i>Generate Report
-                                </button>
+                                <h6 class="mt-3">Comprehensive Reports</h6>
+                                <p class="text-muted small">Access all platform reports and analytics</p>
+                                <a href="{{ route('admin.reports.overview') }}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-download me-1"></i>View Reports
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -211,8 +211,6 @@
 </div>
 
 <script>
-function generateReport() {
-    // Placeholder for report generation functionality
-    alert('Report generation feature coming soon!');
-}
+// All report functionality is now handled through the admin dashboard
+// Users are redirected to comprehensive reports in the admin panel
 </script> 

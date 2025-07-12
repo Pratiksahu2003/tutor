@@ -430,4 +430,126 @@ class CMSController extends Controller
         
         return $files;
     }
+
+    // =======================
+    // MENUS MANAGEMENT
+    // =======================
+    
+    public function menus(Request $request)
+    {
+        $menus = Menu::with(['items'])->latest()->paginate(20);
+        return view('admin.cms.menus.index', compact('menus'));
+    }
+    
+    public function createMenu()
+    {
+        return view('admin.cms.menus.create');
+    }
+    
+    public function storeMenu(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+        ]);
+        
+        Menu::create($validated);
+        
+        return redirect()->route('admin.cms.menus.index')
+            ->with('success', 'Menu created successfully!');
+    }
+    
+    public function editMenu(Menu $menu)
+    {
+        return view('admin.cms.menus.edit', compact('menu'));
+    }
+    
+    public function updateMenu(Request $request, Menu $menu)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+        ]);
+        
+        $menu->update($validated);
+        
+        return redirect()->route('admin.cms.menus.index')
+            ->with('success', 'Menu updated successfully!');
+    }
+    
+    public function destroyMenu(Menu $menu)
+    {
+        $menu->delete();
+        
+        return redirect()->route('admin.cms.menus.index')
+            ->with('success', 'Menu deleted successfully!');
+    }
+
+    // =======================
+    // SLIDERS MANAGEMENT
+    // =======================
+    
+    public function sliders(Request $request)
+    {
+        $sliders = Slider::latest()->paginate(20);
+        return view('admin.cms.sliders.index', compact('sliders'));
+    }
+    
+    public function createSlider()
+    {
+        return view('admin.cms.sliders.create');
+    }
+    
+    public function storeSlider(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+            'autoplay' => 'boolean',
+            'autoplay_speed' => 'nullable|integer|min:1000|max:10000',
+            'show_arrows' => 'boolean',
+            'show_dots' => 'boolean',
+        ]);
+        
+        Slider::create($validated);
+        
+        return redirect()->route('admin.cms.sliders.index')
+            ->with('success', 'Slider created successfully!');
+    }
+    
+    public function editSlider(Slider $slider)
+    {
+        return view('admin.cms.sliders.edit', compact('slider'));
+    }
+    
+    public function updateSlider(Request $request, Slider $slider)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+            'autoplay' => 'boolean',
+            'autoplay_speed' => 'nullable|integer|min:1000|max:10000',
+            'show_arrows' => 'boolean',
+            'show_dots' => 'boolean',
+        ]);
+        
+        $slider->update($validated);
+        
+        return redirect()->route('admin.cms.sliders.index')
+            ->with('success', 'Slider updated successfully!');
+    }
+    
+    public function destroySlider(Slider $slider)
+    {
+        $slider->delete();
+        
+        return redirect()->route('admin.cms.sliders.index')
+            ->with('success', 'Slider deleted successfully!');
+    }
 }

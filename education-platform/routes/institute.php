@@ -91,13 +91,23 @@ Route::middleware(['auth', 'role:institute'])->prefix('institute')->name('instit
         Route::get('/{student}/sessions', [InstituteDashboardController::class, 'studentSessions'])->name('sessions');
     });
     
-    // Analytics & Reports
+    // Analytics & Reports - Redirect to admin dashboard for comprehensive reports
     Route::prefix('analytics')->name('analytics.')->group(function () {
-        Route::get('/', [InstituteDashboardController::class, 'analytics'])->name('index');
-        Route::get('/revenue', [InstituteDashboardController::class, 'revenueReport'])->name('revenue');
-        Route::get('/branch-performance', [InstituteDashboardController::class, 'branchPerformance'])->name('branch-performance');
-        Route::get('/teacher-performance', [InstituteDashboardController::class, 'teacherPerformance'])->name('teacher-performance');
-        Route::get('/student-enrollment', [InstituteDashboardController::class, 'studentEnrollment'])->name('student-enrollment');
+        Route::get('/', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('index');
+        Route::get('/revenue', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('revenue');
+        Route::get('/branch-performance', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('branch-performance');
+        Route::get('/teacher-performance', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('teacher-performance');
+        Route::get('/student-enrollment', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('student-enrollment');
     });
     
     // Communication

@@ -87,6 +87,25 @@
             </li>
             
             <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#teachersSubmenu">
+                    <i class="bi bi-person-workspace"></i>
+                    Teacher Management
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <div class="collapse nav-submenu" id="teachersSubmenu">
+                    <a class="nav-link" href="{{ route('admin.teachers.index') }}">
+                        <i class="bi bi-list"></i>All Teachers
+                    </a>
+                    <a class="nav-link" href="{{ route('admin.teachers.statistics') }}">
+                        <i class="bi bi-graph-up"></i>Statistics & Reports
+                    </a>
+                    <a class="nav-link" href="{{ route('admin.teachers.create') }}">
+                        <i class="bi bi-plus-circle"></i>Add Teacher
+                    </a>
+                </div>
+            </li>
+            
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.leads.*') ? 'active' : '' }}" 
                    href="{{ route('admin.leads.index') }}">
                     <i class="bi bi-person-plus"></i>

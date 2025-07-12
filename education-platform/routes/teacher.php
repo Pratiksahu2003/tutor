@@ -77,13 +77,23 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
         Route::delete('/{student}/notes/{note}', [TeacherDashboardController::class, 'deleteStudentNote'])->name('notes.delete');
     });
     
-    // Analytics & Reports
+    // Analytics & Reports - Redirect to admin dashboard for comprehensive reports
     Route::prefix('analytics')->name('analytics.')->group(function () {
-        Route::get('/', [TeacherDashboardController::class, 'analytics'])->name('index');
-        Route::get('/performance', [TeacherDashboardController::class, 'performanceMetrics'])->name('performance');
-        Route::get('/earnings', [TeacherDashboardController::class, 'earningsReport'])->name('earnings');
-        Route::get('/student-feedback', [TeacherDashboardController::class, 'studentFeedback'])->name('feedback');
-        Route::get('/profile-views', [TeacherDashboardController::class, 'profileViews'])->name('profile-views');
+        Route::get('/', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('index');
+        Route::get('/performance', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('performance');
+        Route::get('/earnings', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('earnings');
+        Route::get('/student-feedback', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('feedback');
+        Route::get('/profile-views', function() {
+            return redirect()->route('admin.analytics.index')->with('info', 'Please use the admin dashboard for comprehensive reports.');
+        })->name('profile-views');
     });
     
     // Communication

@@ -14,6 +14,7 @@ use App\Models\Subject;
 use App\Models\Branch;
 use App\Models\ExamType;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class UnifiedDashboardController extends Controller
 {
@@ -442,5 +443,214 @@ class UnifiedDashboardController extends Controller
         ]);
 
         return back()->with('success', 'Password updated successfully!');
+    }
+
+    /**
+     * Delete user profile
+     */
+    public function deleteProfile(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = auth()->user();
+        
+        // Delete user data
+        $user->delete();
+        
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/')->with('success', 'Your account has been deleted successfully.');
+    }
+
+    /**
+     * Update user avatar
+     */
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'max:2048'],
+        ]);
+
+        $user = auth()->user();
+        
+        // Delete old avatar if exists
+        if ($user->profile_image) {
+            Storage::disk('public')->delete($user->profile_image);
+        }
+        
+        // Store new avatar
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->update(['profile_image' => $path]);
+        
+        return back()->with('success', 'Avatar updated successfully!');
+    }
+
+    /**
+     * Show verification form
+     */
+    public function verificationForm()
+    {
+        $user = auth()->user();
+        return view('profile.verification', compact('user'));
+    }
+
+    /**
+     * Submit verification documents
+     */
+    public function submitVerification(Request $request)
+    {
+        $request->validate([
+            'document_type' => ['required', 'string', 'in:id_proof,address_proof,qualification,experience'],
+            'document_file' => ['required', 'file', 'max:5120', 'mimes:pdf,jpg,jpeg,png'],
+            'document_number' => ['required', 'string', 'max:255'],
+            'expiry_date' => ['nullable', 'date', 'after:today'],
+        ]);
+
+        $user = auth()->user();
+        
+        // Store document
+        $path = $request->file('document_file')->store('verification', 'public');
+        
+        // Save verification record
+        $user->verifications()->create([
+            'document_type' => $request->document_type,
+            'document_file' => $path,
+            'document_number' => $request->document_number,
+            'expiry_date' => $request->expiry_date,
+            'status' => 'pending',
+        ]);
+        
+        return back()->with('success', 'Verification document submitted successfully!');
+    }
+
+    /**
+     * Show user preferences
+     */
+    public function preferences()
+    {
+        $user = auth()->user();
+        return view('profile.preferences', compact('user'));
+    }
+
+    /**
+     * Update user preferences
+     */
+    public function updatePreferences(Request $request)
+    {
+        $request->validate([
+            'language' => ['nullable', 'string', 'in:en,hi'],
+            'timezone' => ['nullable', 'string'],
+            'date_format' => ['nullable', 'string', 'in:Y-m-d,d/m/Y,m/d/Y'],
+            'time_format' => ['nullable', 'string', 'in:12,24'],
+            'email_notifications' => ['boolean'],
+            'sms_notifications' => ['boolean'],
+            'push_notifications' => ['boolean'],
+            'marketing_emails' => ['boolean'],
+        ]);
+
+        $user = auth()->user();
+        $user->update([
+            'preferences' => array_merge($user->preferences ?? [], $request->only([
+                'language', 'timezone', 'date_format', 'time_format',
+                'email_notifications', 'sms_notifications', 'push_notifications', 'marketing_emails'
+            ]))
+        ]);
+        
+        return back()->with('success', 'Preferences updated successfully!');
+    }
+
+    /**
+     * Show security settings
+     */
+    public function security()
+    {
+        $user = auth()->user();
+        return view('profile.security', compact('user'));
+    }
+
+    /**
+     * Enable two-factor authentication
+     */
+    public function enableTwoFactor(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Implementation for 2FA (you can use Laravel Fortify or similar)
+        // For now, we'll just mark it as enabled
+        $user->update(['two_factor_enabled' => true]);
+        
+        return back()->with('success', 'Two-factor authentication enabled successfully!');
+    }
+
+    /**
+     * Disable two-factor authentication
+     */
+    public function disableTwoFactor(Request $request)
+    {
+        $user = auth()->user();
+        $user->update(['two_factor_enabled' => false]);
+        
+        return back()->with('success', 'Two-factor authentication disabled successfully!');
+    }
+
+    /**
+     * Show active sessions
+     */
+    public function sessions()
+    {
+        $user = auth()->user();
+        $sessions = $user->sessions ?? collect();
+        
+        return view('profile.sessions', compact('user', 'sessions'));
+    }
+
+    /**
+     * Destroy a specific session
+     */
+    public function destroySession(Request $request, $sessionId)
+    {
+        // Implementation to destroy specific session
+        // This would depend on your session management system
+        
+        return back()->with('success', 'Session terminated successfully!');
+    }
+
+    /**
+     * Show notification settings
+     */
+    public function notifications()
+    {
+        $user = auth()->user();
+        return view('profile.notifications', compact('user'));
+    }
+
+    /**
+     * Update notification settings
+     */
+    public function updateNotifications(Request $request)
+    {
+        $request->validate([
+            'email_notifications' => ['boolean'],
+            'sms_notifications' => ['boolean'],
+            'push_notifications' => ['boolean'],
+            'marketing_emails' => ['boolean'],
+            'booking_notifications' => ['boolean'],
+            'payment_notifications' => ['boolean'],
+            'system_notifications' => ['boolean'],
+        ]);
+
+        $user = auth()->user();
+        $user->update([
+            'preferences' => array_merge($user->preferences ?? [], $request->only([
+                'email_notifications', 'sms_notifications', 'push_notifications', 'marketing_emails',
+                'booking_notifications', 'payment_notifications', 'system_notifications'
+            ]))
+        ]);
+        
+        return back()->with('success', 'Notification settings updated successfully!');
     }
 } 

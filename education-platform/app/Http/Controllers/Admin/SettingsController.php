@@ -18,10 +18,12 @@ class SettingsController extends Controller
         $settings = SiteSetting::getAllGrouped();
         $groups = [
             'general' => 'General Settings',
+            'social' => 'Social Media',
+            'seo' => 'SEO Settings',
+            'platform' => 'Platform Settings',
             'site' => 'Site Configuration', 
             'cache' => 'Cache Management',
             'database' => 'Database Settings',
-            'social' => 'Social Media',
             'content' => 'Content Management',
             'appearance' => 'Appearance',
             'system' => 'System Settings'

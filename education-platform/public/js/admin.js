@@ -1,324 +1,210 @@
-/**
- * Admin Dashboard JavaScript
- * Handles sidebar, theme switching, notifications, and common admin functionality
- */
+// Admin Dashboard JavaScript
 
-class AdminDashboard {
-    constructor() {
-        this.init();
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Sidebar Toggle for Mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+        });
     }
-
-    init() {
-        this.initSidebar();
-        this.initTheme();
-        this.initNotifications();
-        this.initAlerts();
-        this.initSearch();
-        this.bindEvents();
-    }
-
-    /**
-     * Initialize sidebar functionality
-     */
-    initSidebar() {
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
+    
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon
+            const icon = this.querySelector('i');
+            icon.className = newTheme === 'dark' ? 'bi bi-moon' : 'bi bi-sun';
+        });
         
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768) {
-                    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-                        sidebar.classList.remove('show');
-                    }
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        const icon = themeToggle.querySelector('i');
+        icon.className = savedTheme === 'dark' ? 'bi bi-moon' : 'bi bi-sun';
+    }
+    
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    });
+    
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Initialize popovers
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+    });
+    
+    // Sidebar submenu auto-expand if current page is active
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && currentPath.includes(href.replace('/admin', ''))) {
+            link.classList.add('active');
+            
+            // Expand parent submenu if this is a submenu item
+            const submenu = link.closest('.nav-submenu');
+            if (submenu) {
+                const parentCollapse = submenu.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
                 }
-            });
+            }
         }
-
-        // Handle submenu toggles
-        this.initSubmenuToggles();
+    });
+    
+    // Search functionality
+    const searchInput = document.querySelector('.topbar-search input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                // Implement search functionality here
+                console.log('Searching for:', this.value);
+            }
+        });
     }
-
-    /**
-     * Initialize submenu toggles
-     */
-    initSubmenuToggles() {
-        const submenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
-        
-        submenuToggles.forEach(toggle => {
-            toggle.addEventListener('click', (e) => {
+    
+    // Notification functionality
+    const notificationBtn = document.getElementById('notificationBtn');
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', function() {
+            // Implement notification functionality here
+            console.log('Notifications clicked');
+        });
+    }
+    
+    // Bulk action checkboxes
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
+    
+    // Confirm delete actions
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to delete this item?')) {
                 e.preventDefault();
-                
-                const target = document.querySelector(toggle.getAttribute('data-bs-target'));
-                const icon = toggle.querySelector('.bi-chevron-down');
-                
-                if (target) {
-                    if (target.classList.contains('show')) {
-                        target.classList.remove('show');
-                        if (icon) icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        // Close other open submenus
-                        document.querySelectorAll('.nav-submenu.show').forEach(submenu => {
-                            submenu.classList.remove('show');
-                        });
-                        
-                        target.classList.add('show');
-                        if (icon) icon.style.transform = 'rotate(180deg)';
-                    }
-                }
-            });
-        });
-    }
-
-    /**
-     * Initialize theme switching
-     */
-    initTheme() {
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-        
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = html.getAttribute('data-bs-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                
-                html.setAttribute('data-bs-theme', newTheme);
-                
-                const icon = themeToggle.querySelector('i');
-                if (icon) {
-                    icon.className = newTheme === 'dark' ? 'bi bi-moon' : 'bi bi-sun';
-                }
-                
-                localStorage.setItem('admin-theme', newTheme);
-                
-                // Trigger theme change event
-                window.dispatchEvent(new CustomEvent('themeChanged', {
-                    detail: { theme: newTheme }
-                }));
-            });
-            
-            // Load saved theme
-            const savedTheme = localStorage.getItem('admin-theme');
-            if (savedTheme) {
-                html.setAttribute('data-bs-theme', savedTheme);
-                const icon = themeToggle.querySelector('i');
-                if (icon) {
-                    icon.className = savedTheme === 'dark' ? 'bi bi-moon' : 'bi bi-sun';
-                }
             }
-        }
-    }
-
-    /**
-     * Initialize notifications
-     */
-    initNotifications() {
-        const notificationBtn = document.getElementById('notificationBtn');
-        
-        if (notificationBtn) {
-            notificationBtn.addEventListener('click', () => {
-                this.loadNotifications();
-            });
-        }
-
-        // Check for new notifications periodically
-        this.startNotificationPolling();
-    }
-
-    /**
-     * Load notifications from server
-     */
-    async loadNotifications() {
-        try {
-            const response = await fetch('/api/notifications');
-            const data = await response.json();
-            
-            if (data.success) {
-                this.displayNotifications(data.notifications);
-                this.updateNotificationBadge(data.unread_count);
-            }
-        } catch (error) {
-            console.error('Failed to load notifications:', error);
-        }
-    }
-
-    /**
-     * Display notifications in dropdown/modal
-     */
-    displayNotifications(notifications) {
-        // Implementation for displaying notifications
-        // This would create a dropdown or modal with notifications
-        console.log('Notifications:', notifications);
-    }
-
-    /**
-     * Update notification badge count
-     */
-    updateNotificationBadge(count) {
-        const badge = document.querySelector('.notification-badge');
-        if (badge) {
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'flex' : 'none';
-        }
-    }
-
-    /**
-     * Start polling for new notifications
-     */
-    startNotificationPolling() {
-        // Poll every 30 seconds
-        setInterval(() => {
-            this.loadNotifications();
-        }, 30000);
-    }
-
-    /**
-     * Initialize auto-dismissing alerts
-     */
-    initAlerts() {
-        const alerts = document.querySelectorAll('.alert-dismissible');
-        
-        alerts.forEach(alert => {
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                if (alert && alert.parentNode) {
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateX(100%)';
-                    
-                    setTimeout(() => {
-                        if (alert.parentNode) {
-                            alert.parentNode.removeChild(alert);
-                        }
-                    }, 300);
-                }
-            }, 5000);
         });
-    }
-
-    /**
-     * Initialize search functionality
-     */
-    initSearch() {
-        const searchInput = document.querySelector('.topbar-search input');
-        
-        if (searchInput) {
-            let searchTimeout;
-            
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                const query = e.target.value.trim();
-                
-                if (query.length >= 2) {
-                    searchTimeout = setTimeout(() => {
-                        this.performSearch(query);
-                    }, 300);
-                } else {
-                    this.hideSearchResults();
+    });
+    
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    });
+    
+    // Auto-save form data
+    const formInputs = document.querySelectorAll('input, textarea, select');
+    formInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const form = this.closest('form');
+            if (form) {
+                const formData = new FormData(form);
+                const formObject = {};
+                formData.forEach((value, key) => {
+                    formObject[key] = value;
+                });
+                localStorage.setItem('form_autosave_' + form.id, JSON.stringify(formObject));
+            }
+        });
+    });
+    
+    // Restore form data on page load
+    const formsToRestore = document.querySelectorAll('form[id]');
+    formsToRestore.forEach(form => {
+        const savedData = localStorage.getItem('form_autosave_' + form.id);
+        if (savedData) {
+            const formObject = JSON.parse(savedData);
+            Object.keys(formObject).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input && !input.value) {
+                    input.value = formObject[key];
                 }
             });
-
-            // Handle search form submission
-            const searchForm = searchInput.closest('form');
-            if (searchForm) {
-                searchForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const query = searchInput.value.trim();
-                    if (query) {
-                        this.performSearch(query);
-                    }
+        }
+    });
+    
+    // Clear form autosave on successful submission
+    const submitButtons = document.querySelectorAll('button[type="submit"]');
+    submitButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('form');
+            if (form && form.id) {
+                localStorage.removeItem('form_autosave_' + form.id);
+            }
+        });
+    });
+    
+    // Lazy loading for images
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+    
+    // Smooth scrolling for anchor links
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
-        }
-    }
-
-    /**
-     * Perform search and show results
-     */
-    async performSearch(query) {
-        try {
-            const response = await fetch(`/api/admin/search?q=${encodeURIComponent(query)}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                this.displaySearchResults(data.results);
-            }
-        } catch (error) {
-            console.error('Search failed:', error);
-        }
-    }
-
-    /**
-     * Display search results
-     */
-    displaySearchResults(results) {
-        // Implementation for displaying search results
-        console.log('Search results:', results);
-    }
-
-    /**
-     * Hide search results
-     */
-    hideSearchResults() {
-        const resultsContainer = document.querySelector('.search-results');
-        if (resultsContainer) {
-            resultsContainer.style.display = 'none';
-        }
-    }
-
-    /**
-     * Bind additional events
-     */
-    bindEvents() {
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            this.handleResize();
         });
-
-        // Handle click outside dropdowns
-        document.addEventListener('click', (e) => {
-            this.handleOutsideClick(e);
-        });
-
-        // Handle keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            this.handleKeyboardShortcuts(e);
-        });
-    }
-
-    /**
-     * Handle window resize
-     */
-    handleResize() {
-        const sidebar = document.getElementById('sidebar');
-        
-        if (window.innerWidth > 768) {
-            if (sidebar) {
-                sidebar.classList.remove('show');
-            }
-        }
-    }
-
-    /**
-     * Handle clicks outside dropdowns and modals
-     */
-    handleOutsideClick(e) {
-        // Close search results if clicking outside
-        const searchContainer = document.querySelector('.topbar-search');
-        const resultsContainer = document.querySelector('.search-results');
-        
-        if (resultsContainer && !searchContainer.contains(e.target)) {
-            this.hideSearchResults();
-        }
-    }
-
-    /**
-     * Handle keyboard shortcuts
-     */
-    handleKeyboardShortcuts(e) {
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
         // Ctrl/Cmd + K for search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
@@ -327,146 +213,103 @@ class AdminDashboard {
                 searchInput.focus();
             }
         }
-
-        // Escape to close modals/dropdowns
-        if (e.key === 'Escape') {
-            this.hideSearchResults();
-            // Close any open dropdowns
-            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
-            openDropdowns.forEach(dropdown => {
-                dropdown.classList.remove('show');
-            });
+        
+        // Ctrl/Cmd + S for save (if in a form)
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            const activeForm = document.querySelector('form:focus-within');
+            if (activeForm) {
+                e.preventDefault();
+                const submitBtn = activeForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.click();
+                }
+            }
         }
+    });
+    
+    // Performance monitoring
+    if ('performance' in window) {
+        window.addEventListener('load', function() {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            if (perfData.loadEventEnd - perfData.loadEventStart > 3000) {
+                console.warn('Page load time is slow:', perfData.loadEventEnd - perfData.loadEventStart + 'ms');
+            }
+        });
     }
-}
+    
+    // Error tracking
+    window.addEventListener('error', function(e) {
+        console.error('JavaScript error:', e.error);
+        // You can send this to your error tracking service
+    });
+    
+    // Unhandled promise rejection tracking
+    window.addEventListener('unhandledrejection', function(e) {
+        console.error('Unhandled promise rejection:', e.reason);
+        // You can send this to your error tracking service
+    });
+});
 
-/**
- * Utility functions
- */
-const AdminUtils = {
-    /**
-     * Format currency
-     */
-    formatCurrency(amount, currency = '₹') {
-        return `${currency}${parseFloat(amount).toLocaleString('en-IN')}`;
-    },
-
-    /**
-     * Format date
-     */
-    formatDate(date, format = 'short') {
-        const d = new Date(date);
-        
-        if (format === 'short') {
-            return d.toLocaleDateString('en-IN');
-        } else if (format === 'long') {
-            return d.toLocaleDateString('en-IN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        } else if (format === 'time') {
-            return d.toLocaleTimeString('en-IN', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+// Utility functions
+window.AdminUtils = {
+    // Show loading spinner
+    showLoading: function(element) {
+        if (element) {
+            element.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
         }
-        
-        return d.toLocaleString('en-IN');
     },
-
-    /**
-     * Show toast notification
-     */
-    showToast(message, type = 'info', duration = 3000) {
+    
+    // Hide loading spinner
+    hideLoading: function(element, originalContent) {
+        if (element && originalContent) {
+            element.innerHTML = originalContent;
+        }
+    },
+    
+    // Show toast notification
+    showToast: function(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.className = `toast align-items-center text-white bg-${type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
         
         toast.innerHTML = `
-            <strong>${type.charAt(0).toUpperCase() + type.slice(1)}!</strong> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        document.body.appendChild(toast);
-        
-        // Auto remove after duration
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, duration);
-    },
-
-    /**
-     * Show loading overlay
-     */
-    showLoading(container) {
-        const overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
-        overlay.innerHTML = `
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         `;
         
-        container.style.position = 'relative';
-        container.appendChild(overlay);
+        const container = document.querySelector('.toast-container') || document.body;
+        container.appendChild(toast);
         
-        return overlay;
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Auto remove after toast is hidden
+        toast.addEventListener('hidden.bs.toast', function() {
+            container.removeChild(toast);
+        });
     },
-
-    /**
-     * Hide loading overlay
-     */
-    hideLoading(overlay) {
-        if (overlay && overlay.parentNode) {
-            overlay.parentNode.removeChild(overlay);
-        }
+    
+    // Format currency
+    formatCurrency: function(amount, currency = '₹') {
+        return currency + parseFloat(amount).toLocaleString('en-IN');
     },
-
-    /**
-     * Confirm action with modal
-     */
-    confirmAction(message, callback) {
-        if (confirm(message)) {
-            callback();
-        }
+    
+    // Format date
+    formatDate: function(date) {
+        return new Date(date).toLocaleDateString('en-IN');
     },
-
-    /**
-     * Copy text to clipboard
-     */
-    async copyToClipboard(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            this.showToast('Copied to clipboard!', 'success', 2000);
-        } catch (error) {
-            console.error('Failed to copy:', error);
-            this.showToast('Failed to copy to clipboard', 'error', 2000);
-        }
+    
+    // Format datetime
+    formatDateTime: function(date) {
+        return new Date(date).toLocaleString('en-IN');
     },
-
-    /**
-     * Validate email
-     */
-    isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    },
-
-    /**
-     * Validate phone number (Indian format)
-     */
-    isValidPhone(phone) {
-        const phoneRegex = /^[+]?[0-9]{10,13}$/;
-        return phoneRegex.test(phone.replace(/\s+/g, ''));
-    },
-
-    /**
-     * Debounce function
-     */
-    debounce(func, wait) {
+    
+    // Debounce function
+    debounce: function(func, wait) {
         let timeout;
         return function executedFunction(...args) {
             const later = () => {
@@ -477,102 +320,18 @@ const AdminUtils = {
             timeout = setTimeout(later, wait);
         };
     },
-
-    /**
-     * Throttle function
-     */
-    throttle(func, limit) {
+    
+    // Throttle function
+    throttle: function(func, limit) {
         let inThrottle;
-        return function(...args) {
+        return function() {
+            const args = arguments;
+            const context = this;
             if (!inThrottle) {
-                func.apply(this, args);
+                func.apply(context, args);
                 inThrottle = true;
                 setTimeout(() => inThrottle = false, limit);
             }
         };
     }
-};
-
-/**
- * AJAX Helper
- */
-const AdminAjax = {
-    /**
-     * Make GET request
-     */
-    async get(url, options = {}) {
-        return this.request('GET', url, null, options);
-    },
-
-    /**
-     * Make POST request
-     */
-    async post(url, data, options = {}) {
-        return this.request('POST', url, data, options);
-    },
-
-    /**
-     * Make PUT request
-     */
-    async put(url, data, options = {}) {
-        return this.request('PUT', url, data, options);
-    },
-
-    /**
-     * Make DELETE request
-     */
-    async delete(url, options = {}) {
-        return this.request('DELETE', url, null, options);
-    },
-
-    /**
-     * Generic request method
-     */
-    async request(method, url, data = null, options = {}) {
-        const defaultOptions = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        };
-
-        if (data) {
-            defaultOptions.body = JSON.stringify(data);
-        }
-
-        const finalOptions = { ...defaultOptions, ...options };
-
-        try {
-            const response = await fetch(url, finalOptions);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('AJAX request failed:', error);
-            throw error;
-        }
-    }
-};
-
-/**
- * Initialize admin dashboard when DOM is loaded
- */
-document.addEventListener('DOMContentLoaded', () => {
-    new AdminDashboard();
-    
-    // Make utilities globally available
-    window.AdminUtils = AdminUtils;
-    window.AdminAjax = AdminAjax;
-});
-
-/**
- * Export for module usage
- */
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AdminDashboard, AdminUtils, AdminAjax };
-} 
+}; 

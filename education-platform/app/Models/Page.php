@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Page extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'title',
@@ -18,25 +17,22 @@ class Page extends Model
         'excerpt',
         'meta_title',
         'meta_description',
-        'meta_keywords',
-        'status',
-        'template',
         'featured_image',
+        'status',
+        'type',
+        'sort_order',
+        'show_in_menu',
+        'seo_data',
         'author_id',
         'published_at',
-        'sort_order',
-        'is_homepage',
-        'show_in_menu',
-        'parent_id',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
-        'is_homepage' => 'boolean',
+        'seo_data' => 'array',
         'show_in_menu' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     protected static function boot()
