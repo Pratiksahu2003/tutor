@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class TeacherProfile extends Model
 {
@@ -115,6 +116,14 @@ class TeacherProfile extends Model
         return $this->belongsToMany(Subject::class, 'teacher_subjects', 'teacher_id', 'subject_id')
                     ->withPivot(['subject_rate', 'proficiency_level'])
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the reviews for this teacher
+     */
+    public function reviews()
+    {
+        return $this->morphMany(Review::class, 'reviewable');
     }
 
     /**

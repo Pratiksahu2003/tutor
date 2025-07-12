@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Institute extends Model
 {
@@ -200,6 +201,14 @@ class Institute extends Model
                         'batch_size', 'timings', 'status'
                     ])
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the reviews for this institute
+     */
+    public function reviews()
+    {
+        return $this->morphMany(Review::class, 'reviewable');
     }
 
     /**

@@ -160,12 +160,9 @@
                         </tbody>
                     </table>
                 </div>
-                
-                @if(isset($users) && method_exists($users, 'links'))
-                    <div class="d-flex justify-content-center">
-                        {{ $users->links() }}
-                    </div>
-                @endif
+                <div class="d-flex justify-content-center">
+                    {{ $users->links('pagination::bootstrap-5') }}
+                </div>
             </div>
         </div>
     </div>
