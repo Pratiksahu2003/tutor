@@ -17,8 +17,24 @@ class Role extends Model
     ];
 
     protected $casts = [
-        // No casts needed since is_active doesn't exist
+        'is_active' => 'boolean',
     ];
+
+    /**
+     * Get the slug attribute
+     */
+    public function getSlugAttribute()
+    {
+        return Str::slug($this->name);
+    }
+
+    /**
+     * Get the is_active attribute (default to true for existing roles)
+     */
+    public function getIsActiveAttribute()
+    {
+        return true; // Default to active for existing roles
+    }
 
     /**
      * Get the users that have this role

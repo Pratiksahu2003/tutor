@@ -306,6 +306,86 @@ class CMSController extends Controller
             ->with('success', 'Blog post created successfully!');
     }
     
+    public function showBlogPost(BlogPost $post)
+    {
+        $post->load(['author']);
+        return view('admin.cms.blog.show', compact('post'));
+    }
+    
+    public function editBlogPost(BlogPost $post)
+    {
+        $postTypes = ['post', 'article', 'news', 'tutorial', 'guide', 'announcement'];
+        $categories = $this->getBlogCategories();
+        $difficultyLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
+        
+        return view('admin.cms.blog.edit', compact('post', 'postTypes', 'categories', 'difficultyLevels'));
+    }
+    
+    public function updateBlogPost(Request $request, BlogPost $post)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('blog_posts')->ignore($post->id)],
+            'excerpt' => 'nullable|string|max:500',
+            'content' => 'required|string',
+            'post_type' => 'required|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'status' => 'required|in:draft,published,private,scheduled',
+            'featured' => 'boolean',
+            'sticky' => 'boolean',
+            'featured_image' => 'nullable|image|max:2048',
+            'video_url' => 'nullable|url',
+            'categories' => 'nullable|array',
+            'tags' => 'nullable|array',
+            'difficulty_level' => 'nullable|string',
+            'target_audience' => 'nullable|string',
+            'education_level' => 'nullable|string',
+            'published_at' => 'nullable|date',
+            'allow_comments' => 'boolean',
+            'allow_ratings' => 'boolean',
+            'is_premium' => 'boolean',
+            'price' => 'nullable|numeric|min:0',
+        ]);
+        
+        // Handle featured image upload
+        if ($request->hasFile('featured_image')) {
+            // Delete old image
+            if ($post->featured_image) {
+                Storage::disk('public')->delete($post->featured_image);
+            }
+            $validated['featured_image'] = $request->file('featured_image')->store('blog/featured', 'public');
+        }
+        
+        // Calculate reading time
+        $validated['reading_time'] = $this->calculateReadingTime($validated['content']);
+        $validated['word_count'] = str_word_count(strip_tags($validated['content']));
+        
+        $validated['updated_by'] = Auth::id();
+        
+        $post->update($validated);
+        
+        return redirect()->route('admin.cms.blog.show', $post)
+            ->with('success', 'Blog post updated successfully!');
+    }
+    
+    public function destroyBlogPost(Request $request, BlogPost $post)
+    {
+        // Delete featured image
+        if ($post->featured_image) {
+            Storage::disk('public')->delete($post->featured_image);
+        }
+        
+        $post->delete();
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Blog post deleted successfully!']);
+        }
+        
+        return redirect()->route('admin.cms.blog.index')
+            ->with('success', 'Blog post deleted successfully!');
+    }
+    
     // =======================
     // MEDIA MANAGEMENT
     // =======================
@@ -347,6 +427,47 @@ class CMSController extends Controller
             'files' => $uploadedFiles,
             'message' => count($uploadedFiles) . ' file(s) uploaded successfully!'
         ]);
+    }
+    
+    public function deleteMedia(Request $request)
+    {
+        $request->validate([
+            'path' => 'required|string'
+        ]);
+        
+        $path = $request->path;
+        
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+            return response()->json(['success' => true, 'message' => 'File deleted successfully!']);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'File not found!'], 404);
+    }
+    
+    public function mediaFolders()
+    {
+        $mediaPath = storage_path('app/public/media');
+        $folders = $this->getMediaFolders($mediaPath);
+        
+        return response()->json(['folders' => $folders]);
+    }
+    
+    public function createFolder(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:50'
+        ]);
+        
+        $folderName = $request->name;
+        $folderPath = storage_path('app/public/media/' . $folderName);
+        
+        if (!is_dir($folderPath)) {
+            mkdir($folderPath, 0755, true);
+            return response()->json(['success' => true, 'message' => 'Folder created successfully!']);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'Folder already exists!'], 400);
     }
     
     // =======================

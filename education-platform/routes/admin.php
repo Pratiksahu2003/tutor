@@ -175,7 +175,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::prefix('media')->name('media.')->group(function () {
             Route::get('/', [CMSController::class, 'mediaLibrary'])->name('index');
             Route::post('/upload', [CMSController::class, 'uploadMedia'])->name('upload');
-            Route::delete('/{media}', [CMSController::class, 'deleteMedia'])->name('delete');
+            Route::delete('/delete', [CMSController::class, 'deleteMedia'])->name('delete');
             Route::get('/folders', [CMSController::class, 'mediaFolders'])->name('folders');
             Route::post('/folders', [CMSController::class, 'createFolder'])->name('folders.create');
         });

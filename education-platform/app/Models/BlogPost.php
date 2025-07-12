@@ -88,6 +88,24 @@ class BlogPost extends Model
     }
 
     /**
+     * Get categories as a relationship (for compatibility)
+     */
+    public function categories()
+    {
+        // Since categories is stored as JSON, we'll return a collection
+        return collect($this->categories ?? []);
+    }
+
+    /**
+     * Get tags as a relationship (for compatibility)
+     */
+    public function tags()
+    {
+        // Since tags is stored as JSON, we'll return a collection
+        return collect($this->tags ?? []);
+    }
+
+    /**
      * Scope for published posts
      */
     public function scopePublished($query)

@@ -81,6 +81,14 @@ class Page extends Model
     }
 
     /**
+     * Get the user who last updated the page
+     */
+    public function updatedByUser()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
      * Scope for published pages
      */
     public function scopePublished($query)

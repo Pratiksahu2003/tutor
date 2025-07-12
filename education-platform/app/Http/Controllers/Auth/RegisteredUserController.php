@@ -179,7 +179,7 @@ class RegisteredUserController extends Controller
      */
     private function assignUserRole($user, $roleName)
     {
-        $role = \App\Models\Role::where('slug', $roleName)->first();
+        $role = \App\Models\Role::where('name', $roleName)->first();
         if ($role) {
             $user->assignRole($role);
         }
