@@ -74,19 +74,19 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>This Month</span>
-                                    <strong>₹{{ number_format($stats['earnings_this_month']) }}</strong>
+                                    <strong>₹{{ number_format($stats['earnings_this_month'] ?? 0) }}</strong>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>Total Earnings</span>
-                                    <strong>₹{{ number_format($stats['total_earnings']) }}</strong>
+                                    <strong>₹{{ number_format($stats['total_earnings'] ?? 0) }}</strong>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>Average per Session</span>
-                                    <strong>₹{{ number_format($stats['total_earnings'] / max($stats['total_sessions'], 1)) }}</strong>
+                                    <strong>₹{{ number_format(($stats['total_earnings'] ?? 0) / max($stats['total_sessions'] ?? 1, 1)) }}</strong>
                                 </div>
                             </div>
                             <button class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#earningsReportModal">
@@ -220,9 +220,9 @@
                         <div class="card-body">
                             <h6 class="card-title">Session Completion Rate</h6>
                             <div class="progress mb-3" style="height: 10px;">
-                                <div class="progress-bar bg-success" style="width: {{ ($stats['completed_sessions'] / max($stats['total_sessions'], 1)) * 100 }}%"></div>
+                                <div class="progress-bar bg-success" style="width: {{ (($stats['completed_sessions'] ?? 0) / max($stats['total_sessions'] ?? 1, 1)) * 100 }}%"></div>
                             </div>
-                            <small class="text-muted">{{ $stats['completed_sessions'] }} of {{ $stats['total_sessions'] }} sessions completed</small>
+                            <small class="text-muted">{{ $stats['completed_sessions'] ?? 0 }} of {{ $stats['total_sessions'] ?? 0 }} sessions completed</small>
                         </div>
                     </div>
                 </div>
@@ -232,7 +232,7 @@
                             <h6 class="card-title">Student Satisfaction</h6>
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
-                                    <span class="h4 mb-0">{{ number_format($stats['average_rating'], 1) }}</span>
+                                    <span class="h4 mb-0">{{ number_format($stats['average_rating'] ?? 0, 1) }}</span>
                                     <small class="text-muted">/ 5.0</small>
                                 </div>
                                 <div>
@@ -241,7 +241,7 @@
                                     @endfor
                                 </div>
                             </div>
-                            <small class="text-muted">Based on {{ $stats['completed_sessions'] }} reviews</small>
+                            <small class="text-muted">Based on {{ $stats['completed_sessions'] ?? 0 }} reviews</small>
                         </div>
                     </div>
                 </div>

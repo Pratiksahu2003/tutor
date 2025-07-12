@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CompleteEducationPlatformSeeder::class,
+            ExamPackageSeeder::class,
         ]);
     }
 }

@@ -181,7 +181,7 @@ class TeacherController extends Controller
             // Attach student to teacher
             $teacherProfile = TeacherProfile::where('user_id', Auth::id())->first();
             if ($teacherProfile) {
-                $teacherProfile->students()->attach($user->id);
+                // $teacherProfile->students()->attach($user->id);
             }
 
             return response()->json([
@@ -213,15 +213,15 @@ class TeacherController extends Controller
         $thisMonth = Carbon::now()->startOfMonth();
 
         $stats = [
-            'total_students' => $teacherProfile->students()->count(),
-            'new_students_month' => $teacherProfile->students()->wherePivot('created_at', '>=', $thisMonth)->count(),
-            'total_sessions' => $teacherProfile->sessions()->count(),
-            'sessions_this_month' => $teacherProfile->sessions()->whereMonth('scheduled_at', $thisMonth->month)->count(),
-            'earnings_this_month' => $teacherProfile->payments()->whereMonth('created_at', $thisMonth->month)->sum('amount'),
-            'total_earnings' => $teacherProfile->payments()->sum('amount'),
+            'total_students' => 0, // $teacherProfile->students()->count(),
+            'new_students_month' => 0, // $teacherProfile->students()->wherePivot('created_at', '>=', $thisMonth)->count(),
+            // 'total_sessions' => $teacherProfile->sessions()->count(),
+            // 'sessions_this_month' => $teacherProfile->sessions()->whereMonth('scheduled_at', $thisMonth->month)->count(),
+            // 'earnings_this_month' => $teacherProfile->payments()->whereMonth('created_at', $thisMonth->month)->sum('amount'),
+            // 'total_earnings' => $teacherProfile->payments()->sum('amount'),
             'average_rating' => $teacherProfile->reviews()->avg('rating') ?? 0,
-            'completed_sessions' => $teacherProfile->sessions()->where('status', 'completed')->count(),
-            'upcoming_sessions' => $teacherProfile->sessions()->where('status', 'scheduled')->where('scheduled_at', '>=', now())->count(),
+            // 'completed_sessions' => $teacherProfile->sessions()->where('status', 'completed')->count(),
+            // 'upcoming_sessions' => $teacherProfile->sessions()->where('status', 'scheduled')->where('scheduled_at', '>=', now())->count(),
             'subjects_taught' => $teacherProfile->subjects()->count(),
             'institutes_associated' => $teacherProfile->institutes()->count(),
         ];

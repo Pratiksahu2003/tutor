@@ -272,19 +272,19 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>This Month</span>
-                                    <strong>₹{{ number_format($stats['monthly_revenue']) }}</strong>
+                                    <strong>₹{{ number_format($stats['monthly_revenue'] ?? 0) }}</strong>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>Total Revenue</span>
-                                    <strong>₹{{ number_format($stats['total_revenue']) }}</strong>
+                                    <strong>₹{{ number_format($stats['total_revenue'] ?? 0) }}</strong>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>Average per Session</span>
-                                    <strong>₹{{ number_format($stats['total_revenue'] / max($stats['total_sessions'], 1)) }}</strong>
+                                    <strong>₹{{ number_format(($stats['total_revenue'] ?? 0) / max($stats['total_sessions'] ?? 1, 1)) }}</strong>
                                 </div>
                             </div>
                             <button class="btn btn-outline-primary btn-sm w-100">

@@ -19,6 +19,22 @@
                     <a href="#" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#scheduleSessionModal">
                         <i class="bi bi-calendar-plus me-1"></i>Schedule Session
                     </a>
+                    <hr>
+                    <a href="{{ route('teacher.earnings') }}" class="btn btn-outline-warning btn-sm">
+                        <i class="bi bi-currency-rupee me-1"></i>Earnings & Reports
+                    </a>
+                    <a href="{{ route('teacher.publicProfile', $user->teacherProfile->slug ?? $user->id) }}" class="btn btn-outline-info btn-sm" target="_blank">
+                        <i class="bi bi-person-lines-fill me-1"></i>Public Profile
+                    </a>
+                    <a href="{{ route('teacher.reviews') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-star me-1"></i>Reviews
+                    </a>
+                    <a href="{{ route('teacher.institute') }}" class="btn btn-outline-purple btn-sm">
+                        <i class="bi bi-building me-1"></i>Institute Management
+                    </a>
+                    <a href="{{ route('teacher.settings') }}" class="btn btn-outline-dark btn-sm">
+                        <i class="bi bi-gear me-1"></i>Settings
+                    </a>
                 @elseif($user->role === 'institute')
                     <a href="#" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBranchModal">
                         <i class="bi bi-building me-1"></i>Add Branch

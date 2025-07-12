@@ -143,6 +143,14 @@ class TeacherProfile extends Model
     }
 
     /**
+     * Get the exam preparation packages that the teacher offers
+     */
+    public function examPackages()
+    {
+        return $this->belongsToMany(\App\Models\ExamPackage::class, 'exam_package_teacher', 'teacher_profile_id', 'exam_package_id');
+    }
+
+    /**
      * Get the school branches that the teacher manages
      */
     public function schoolBranches()
@@ -336,12 +344,13 @@ class TeacherProfile extends Model
         return $this->branch_role === 'coordinator' && $this->isBranchVerified();
     }
 
-    public function getVerificationStatusAttribute()
+    // Rename the accessor to avoid conflict with the database column
+    public function getVerificationStatusInfoAttribute()
     {
         return [
             'verified' => $this->verified,
-            'verification_status' => $this->verification_status,
-            'fully_verified' => $this->verified && $this->verification_status === 'verified',
+            'verification_status' => $this->attributes['verification_status'] ?? null,
+            'fully_verified' => $this->verified && (($this->attributes['verification_status'] ?? null) === 'verified'),
         ];
     }
 

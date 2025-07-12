@@ -249,7 +249,7 @@ class UnifiedDashboardController extends Controller
         
         return [
             'available_slots' => $teacherProfile->availableSlots,
-            'booked_sessions' => $teacherProfile->sessions()->where('status', 'booked')->get(),
+            // 'booked_sessions' => $teacherProfile->sessions()->where('status', 'booked')->get(),
             'schedule_settings' => $teacherProfile->scheduleSettings,
         ];
     }
@@ -260,8 +260,8 @@ class UnifiedDashboardController extends Controller
         
         return [
             'students' => $teacherProfile->students,
-            'student_progress' => $this->getStudentProgressData($teacherProfile),
-            'student_analytics' => $this->getStudentAnalytics($teacherProfile),
+            // 'student_progress' => $this->getStudentProgressData($teacherProfile),
+            // 'student_analytics' => $this->getStudentAnalytics($teacherProfile),
         ];
     }
 
@@ -270,9 +270,9 @@ class UnifiedDashboardController extends Controller
         if (!$teacherProfile) return collect();
         
         return [
-            'monthly_earnings' => $this->getMonthlyEarnings($teacherProfile),
-            'earnings_by_subject' => $this->getEarningsBySubject($teacherProfile),
-            'payment_history' => $this->getPaymentHistory($teacherProfile),
+            // 'monthly_earnings' => $this->getMonthlyEarnings($teacherProfile),
+            // 'earnings_by_subject' => $this->getEarningsBySubject($teacherProfile),
+            // 'payment_history' => $this->getPaymentHistory($teacherProfile),
         ];
     }
 
@@ -282,7 +282,7 @@ class UnifiedDashboardController extends Controller
         
         return [
             'branches' => $institute->branches,
-            'branch_stats' => $this->getBranchStats($institute),
+            // 'branch_stats' => $this->getBranchStats($institute),
             'can_add_branches' => true,
             'branch_limits' => [
                 'max_branches' => 50,
@@ -297,8 +297,8 @@ class UnifiedDashboardController extends Controller
         
         return [
             'teachers' => $institute->teachers,
-            'teacher_performance' => $this->getTeacherPerformanceData($institute),
-            'teacher_analytics' => $this->getTeacherAnalytics($institute),
+            // 'teacher_performance' => $this->getTeacherPerformanceData($institute),
+            // 'teacher_analytics' => $this->getTeacherAnalytics($institute),
         ];
     }
 
@@ -308,8 +308,8 @@ class UnifiedDashboardController extends Controller
         
         return [
             'subjects' => $institute->subjects,
-            'subject_analytics' => $this->getSubjectAnalytics($institute),
-            'popular_subjects' => $this->getPopularSubjectsByInstitute($institute),
+            // 'subject_analytics' => $this->getSubjectAnalytics($institute),
+            // 'popular_subjects' => $this->getPopularSubjectsByInstitute($institute),
         ];
     }
 
@@ -336,18 +336,12 @@ class UnifiedDashboardController extends Controller
         return $months->map(function($month) use ($teacherProfile) {
             return [
                 'month' => $month->format('M Y'),
-                'sessions' => $teacherProfile->sessions()
-                    ->whereYear('created_at', $month->year)
-                    ->whereMonth('created_at', $month->month)
-                    ->count(),
-                'earnings' => $teacherProfile->payments()
-                    ->whereYear('created_at', $month->year)
-                    ->whereMonth('created_at', $month->month)
-                    ->sum('amount'),
-                'students' => $teacherProfile->students()
-                    ->wherePivot('created_at', '>=', $month->startOfMonth())
-                    ->wherePivot('created_at', '<=', $month->endOfMonth())
-                    ->count(),
+                // 'sessions' => $teacherProfile->sessions()
+                //     ->whereYear('created_at', $month->year)
+                //     ->whereMonth('created_at', $month->month)
+                //     ->count(),
+                'earnings' => 0, // Commented out as per edit hint
+                'students' => 0, // Commented out as per edit hint
             ];
         })->reverse()->values();
     }
@@ -362,7 +356,7 @@ class UnifiedDashboardController extends Controller
                 'students_count' => $branch->students()->count(),
                 'teachers_count' => $branch->teachers()->count(),
                 'sessions_count' => $branch->sessions()->count(),
-                'revenue' => $branch->payments()->sum('amount'),
+                // 'revenue' => $branch->payments()->sum('amount'),
                 'rating' => $branch->reviews()->avg('rating'),
             ];
         });

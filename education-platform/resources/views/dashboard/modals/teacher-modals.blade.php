@@ -182,7 +182,7 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
                                 <h6 class="card-title">This Month</h6>
-                                <div class="h4 text-primary">₹{{ number_format($stats['earnings_this_month']) }}</div>
+                                <div class="h4 text-primary">₹{{ number_format($stats['earnings_this_month'] ?? 0) }}</div>
                             </div>
                         </div>
                     </div>
@@ -190,7 +190,7 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Total Earnings</h6>
-                                <div class="h4 text-success">₹{{ number_format($stats['total_earnings']) }}</div>
+                                <div class="h4 text-success">₹{{ number_format($stats['total_earnings'] ?? 0) }}</div>
                             </div>
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Sessions This Month</h6>
-                                <div class="h4 text-info">{{ number_format($stats['sessions_this_month']) }}</div>
+                                <div class="h4 text-info">{{ number_format($stats['sessions_this_month'] ?? 0) }}</div>
                             </div>
                         </div>
                     </div>
@@ -206,7 +206,7 @@
                         <div class="card border-0 shadow-sm">
                             <div class="card-body text-center">
                                 <h6 class="card-title">Average per Session</h6>
-                                <div class="h4 text-warning">₹{{ number_format($stats['total_earnings'] / max($stats['total_sessions'], 1)) }}</div>
+                                <div class="h4 text-warning">₹{{ number_format(($stats['total_earnings'] ?? 0) / max($stats['total_sessions'] ?? 1, 1)) }}</div>
                             </div>
                         </div>
                     </div>

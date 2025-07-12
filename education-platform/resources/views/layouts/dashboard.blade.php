@@ -673,42 +673,42 @@
                     <div class="nav-section-title">Teaching</div>
                     
                     <div class="nav-item">
-                        <a href="{{ route('teacher.dashboard') }}" class="nav-link {{ request()->routeIs('teacher.*') ? 'active' : '' }}">
+                        <a href="{{ route('teacher.dashboard') }}" class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}">
                             <i class="bi bi-people"></i>
                             <span>Teacher Dashboard</span>
                         </a>
                     </div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('teacher.sessions.index') }}" class="nav-link {{ request()->routeIs('teacher.sessions.*') ? 'active' : '' }}">
                             <i class="bi bi-calendar-check"></i>
                             <span>Schedule</span>
                         </a>
                     </div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('teacher.profile.index') }}" class="nav-link {{ request()->routeIs('teacher.profile*') ? 'active' : '' }}">
                             <i class="bi bi-book"></i>
                             <span>My Subjects</span>
                         </a>
                     </div>
                     
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('teacher.earnings') }}" class="nav-link {{ request()->routeIs('teacher.earnings') ? 'active' : '' }}">
                             <i class="bi bi-currency-dollar"></i>
                             <span>Earnings</span>
                         </a>
                     </div>
 
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('teacher.reviews') }}" class="nav-link {{ request()->routeIs('teacher.reviews') ? 'active' : '' }}">
                             <i class="bi bi-chat-square-dots"></i>
                             <span>Student Inquiries</span>
                         </a>
                     </div>
 
                     <div class="nav-item">
-                        <a href="#" class="nav-link" target="_blank">
+                        <a href="{{ route('teacher.publicProfile', Auth::user()->teacherProfile->slug ?? Auth::id()) }}" class="nav-link" target="_blank">
                             <i class="bi bi-eye"></i>
                             <span>View Public Profile</span>
                             <i class="bi bi-box-arrow-up-right ms-auto" style="font-size: 0.8rem;"></i>

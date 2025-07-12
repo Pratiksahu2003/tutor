@@ -154,19 +154,19 @@
                     <!-- Quick Stats -->
                     <div class="hero-stats">
                         <div class="stat-item">
-                            <span class="stat-number">{{ number_format($stats['total_teachers']) }}+</span>
+                            <span class="stat-number">{{ number_format($stats['total_teachers'] ?? 0) }}+</span>
                             <span class="stat-label">Expert Teachers</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">{{ number_format($stats['active_institutes']) }}+</span>
+                            <span class="stat-number">{{ number_format($stats['active_institutes'] ?? 0) }}+</span>
                             <span class="stat-label">Top Institutes</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">{{ number_format($stats['total_students']) }}+</span>
+                            <span class="stat-number">{{ number_format($stats['total_students'] ?? 0) }}+</span>
                             <span class="stat-label">Happy Students</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">{{ number_format($stats['total_subjects']) }}+</span>
+                            <span class="stat-number">{{ number_format($stats['total_subjects'] ?? 0) }}+</span>
                             <span class="stat-label">Subjects</span>
                         </div>
                     </div>

@@ -64,14 +64,6 @@ class Branch extends Model
     }
 
     /**
-     * Get the sessions held at this branch
-     */
-    public function sessions(): HasMany
-    {
-        return $this->hasMany(Session::class);
-    }
-
-    /**
      * Get the reviews for this branch
      */
     public function reviews(): HasMany
@@ -124,7 +116,7 @@ class Branch extends Model
      */
     public function getSessionsCountAttribute(): int
     {
-        return $this->sessions()->count();
+        return 0;
     }
 
     /**

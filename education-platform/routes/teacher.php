@@ -24,6 +24,22 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/api/stats', [TeacherDashboardController::class, 'getStats'])->name('api.stats');
     Route::get('/api/recent-activity', [TeacherDashboardController::class, 'getRecentActivity'])->name('api.activity');
     
+    // Earnings & Reports
+    Route::get('/earnings', [TeacherDashboardController::class, 'earnings'])->name('earnings');
+    Route::get('/earnings/download', [TeacherDashboardController::class, 'downloadEarningsReport'])->name('earnings.download');
+    
+    // Public Profile
+    Route::get('/public-profile/{slug?}', [TeacherDashboardController::class, 'publicProfile'])->name('publicProfile');
+    
+    // Reviews
+    Route::get('/reviews', [TeacherDashboardController::class, 'reviews'])->name('reviews');
+    Route::post('/reviews/{review}/reply', [TeacherDashboardController::class, 'replyToReview'])->name('reviews.reply');
+    
+    // Institute Management
+    Route::get('/institute', [TeacherDashboardController::class, 'instituteManagement'])->name('institute');
+    Route::post('/institute/apply', [TeacherDashboardController::class, 'applyToInstitute'])->name('institute.apply');
+    Route::post('/institute/leave', [TeacherDashboardController::class, 'leaveInstitute'])->name('institute.leave');
+    
     // Profile Management
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [TeacherDashboardController::class, 'profile'])->name('index');
@@ -104,9 +120,12 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
         Route::post('/notifications/mark-read', [TeacherDashboardController::class, 'markNotificationsRead'])->name('notifications.mark-read');
     });
     
-    // Settings
+    // Settings - Main settings route
+    Route::get('/settings', [TeacherDashboardController::class, 'settings'])->name('settings');
+    Route::put('/settings', [TeacherDashboardController::class, 'updateSettings'])->name('settings.update');
+    
+    // Settings sub-routes
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [TeacherDashboardController::class, 'settings'])->name('index');
         Route::get('/preferences', [TeacherDashboardController::class, 'preferences'])->name('preferences');
         Route::put('/preferences', [TeacherDashboardController::class, 'updatePreferences'])->name('preferences.update');
         Route::get('/notifications', [TeacherDashboardController::class, 'notificationSettings'])->name('notifications');
